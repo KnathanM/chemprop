@@ -1,4 +1,25 @@
 ![ChemProp Logo](docs/source/_static/images/chemprop_logo.svg)
+
+# ML model predicting ddGoslv and ddHsolv for a reaction-solvent pair 
+
+ This repository contains the sample script for the ML models for ddGsolv and ddHsolv predictions. 
+ The sample file is located under `sample_scripts_for_ML_models`. Follow the instructions below to run the sample file.
+ Details on our models can be found in the manuscript, "Machine learning from quantum chemistry to predict experimental solvent effects on reaction rates"
+ (citation for the manuscript will be added soon).
+
+ Given the atom-mapped reaction SMILES and solvent SMILES, the model predicts the following:
+ - `ddGsolv`: solvation free energy of activation of a reaction-solvent pair at 298K in kcal/mol.
+ - `ddHsolv`: solvation enthalpy of activation of a reaction-solvent pair at 298K in kcal/mol
+
+
+ Below are the instructions on how to use our models.
+
+1. Download the `RxnSolvKSE_ML_model_files.zip` file from https://zenodo.org/record/8049537, unzip it, and move it under the `ML_model_files` directory.
+2. Follow the installation guide [Installation](#installation) to install Chemprop.
+3. Activate Chemprop environment, and run the sample file at `sample_scripts_for_ML_models/sample_file_predicting_ddGsolv_ddHsolv_using_ML.ipynb`.
+ You should get the ddGsolv and ddHsolv predictions if the script runs successfully.
+
+
 # Molecular Property Prediction
 
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/chemprop)](https://badge.fury.io/py/chemprop)
