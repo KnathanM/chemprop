@@ -20,8 +20,7 @@ class MulticomponentMessagePassing(nn.Module, HasHParams):
     n_components : int
         the number of components in each input
     shared : bool, default=False
-        whether one block will be shared among all components in an input. If not, a separate
-        block will be learned for each component.
+        whether one block will be shared among all components in an input.
     """
 
     def __init__(self, blocks: Sequence[MessagePassing], n_components: int, shared: bool = False):
@@ -54,9 +53,7 @@ class MulticomponentMessagePassing(nn.Module, HasHParams):
 
     @property
     def output_dim(self) -> int:
-        d_o = sum(block.output_dim for block in self.blocks)
-
-        return d_o if not self.shared else self.blocks[0].output_dim
+        return sum(block.output_dim for block in self.blocks)
 
     def forward(self, bmgs: Iterable[BatchMolGraph], V_ds: Iterable[Tensor | None]) -> list[Tensor]:
         """Encode the multicomponent inputs
