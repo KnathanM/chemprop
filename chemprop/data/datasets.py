@@ -29,6 +29,7 @@ class Datum(NamedTuple):
     weight: float
     lt_mask: np.ndarray | None
     gt_mask: np.ndarray | None
+    mix_mpnn: np.ndarray | None
 
 
 class MolGraphDataset(Dataset):
@@ -84,6 +85,10 @@ class _MolGraphDatasetMixin:
     @property
     def lt_mask(self) -> np.ndarray:
         return np.array([d.lt_mask for d in self.data])
+
+    @property
+    def mix_mpnn(self) -> np.ndarray:
+        return np.array([d.mix_mpnn for d in self.data])
 
     @property
     def t(self) -> int | None:
@@ -154,9 +159,7 @@ class MoleculeDataset(_MolGraphDatasetMixin, MolGraphDataset):
     """
 
     data: list[MoleculeDatapoint]
-    featurizer: MoleculeMolGraphFeaturizer = field(
-        default_factory=SimpleMoleculeMolGraphFeaturizer
-    )
+    featurizer: MoleculeMolGraphFeaturizer = field(default_factory=SimpleMoleculeMolGraphFeaturizer)
 
     def __post_init__(self):
         if self.data is None:
@@ -168,7 +171,16 @@ class MoleculeDataset(_MolGraphDatasetMixin, MolGraphDataset):
         d = self.data[idx]
         mg = self.featurizer(d.mol, self.V_fs[idx], self.E_fs[idx])
 
-        return Datum(mg, self.V_ds[idx], self.X_f[idx], self.Y[idx], d.weight, d.lt_mask, d.gt_mask)
+        return Datum(
+            mg,
+            self.V_ds[idx],
+            self.X_f[idx],
+            self.Y[idx],
+            d.weight,
+            d.lt_mask,
+            d.gt_mask,
+            d.mix_mpnn,
+        )
 
     @property
     def smiles(self) -> list[str]:

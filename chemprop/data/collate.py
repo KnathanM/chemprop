@@ -78,10 +78,11 @@ class TrainingBatch(NamedTuple):
     w: Tensor
     lt_mask: Tensor | None
     gt_mask: Tensor | None
+    mix_mpnn: Tensor | None
 
 
 def collate_batch(batch: Iterable[Datum]) -> TrainingBatch:
-    mgs, V_ds, x_fs, ys, weights, lt_masks, gt_masks = zip(*batch)
+    mgs, V_ds, x_fs, ys, weights, lt_masks, gt_masks, mix_mpnn = zip(*batch)
 
     return TrainingBatch(
         BatchMolGraph(mgs),
@@ -91,6 +92,7 @@ def collate_batch(batch: Iterable[Datum]) -> TrainingBatch:
         torch.tensor(weights).unsqueeze(1),
         None if lt_masks[0] is None else torch.from_numpy(np.array(lt_masks)),
         None if gt_masks[0] is None else torch.from_numpy(np.array(gt_masks)),
+        None if mix_mpnn[0] is None else torch.from_numpy(np.array(mix_mpnn)),
     )
 
 
@@ -102,6 +104,7 @@ class MulticomponentTrainingBatch(NamedTuple):
     w: Tensor
     lt_mask: Tensor | None
     gt_mask: Tensor | None
+    mix_mpnn: Tensor | None
 
 
 def collate_multicomponent(batches: Iterable[Iterable[Datum]]) -> MulticomponentTrainingBatch:
@@ -115,4 +118,5 @@ def collate_multicomponent(batches: Iterable[Iterable[Datum]]) -> Multicomponent
         tbs[0].w,
         tbs[0].lt_mask,
         tbs[0].gt_mask,
+        tbs[0].mix_mpnn,
     )

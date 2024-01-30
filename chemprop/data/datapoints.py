@@ -28,6 +28,9 @@ class _DatapointMixin:
     """A list of molecule featurizers to use"""
     x_phase: list[float] = None
     """A one-hot vector indicating the phase of the data, as used in spectra data."""
+    mix_mpnn: np.ndarray | None = None
+    """An `n x m` array that encodes how to combine `m` MPNN outputs into `n` vectors before
+    concatenating and passing to the FFNN, potentially different for each data point."""
 
     def __post_init__(self, mfs: list[MoleculeFeaturizer] | None):
         if self.x_f is not None and mfs is not None:

@@ -116,7 +116,11 @@ class MPNN(pl.LightningModule):
         return self.predictor.criterion
 
     def fingerprint(
-        self, bmg: BatchMolGraph, V_d: Tensor | None = None, X_f: Tensor | None = None
+        self,
+        bmg: BatchMolGraph,
+        V_d: Tensor | None = None,
+        X_f: Tensor | None = None,
+        mix_mpnn: None = None,
     ) -> Tensor:
         """the learned fingerprints for the input molecules"""
         H_v = self.message_passing(bmg, V_d)
@@ -126,24 +130,32 @@ class MPNN(pl.LightningModule):
         return H if X_f is None else torch.cat((H, X_f), 1)
 
     def encoding(
-        self, bmg: BatchMolGraph, V_d: Tensor | None = None, X_f: Tensor | None = None
+        self,
+        bmg: BatchMolGraph,
+        V_d: Tensor | None = None,
+        X_f: Tensor | None = None,
+        mix_mpnn: Tensor | None = None,
     ) -> Tensor:
         """the final hidden representations for the input molecules"""
-        return self.predictor[:-1](self.fingerprint(bmg, V_d, X_f))
+        return self.predictor[:-1](self.fingerprint(bmg, V_d, X_f, mix_mpnn))
 
     def forward(
-        self, bmg: BatchMolGraph, V_d: Tensor | None = None, X_f: Tensor | None = None
+        self,
+        bmg: BatchMolGraph,
+        V_d: Tensor | None = None,
+        X_f: Tensor | None = None,
+        mix_mpnn: Tensor | None = None,
     ) -> Tensor:
         """Generate predictions for the input molecules/reactions"""
-        return self.predictor(self.fingerprint(bmg, V_d, X_f))
+        return self.predictor(self.fingerprint(bmg, V_d, X_f, mix_mpnn))
 
     def training_step(self, batch: TrainingBatch, batch_idx):
-        bmg, V_d, X_f, targets, w_s, lt_mask, gt_mask = batch
+        bmg, V_d, X_f, targets, w_s, lt_mask, gt_mask, mix_mpnn = batch
 
         mask = targets.isfinite()
         targets = targets.nan_to_num(nan=0.0)
 
-        Z = self.fingerprint(bmg, V_d, X_f)
+        Z = self.fingerprint(bmg, V_d, X_f, mix_mpnn)
         preds = self.predictor.train_step(Z)
         l = self.criterion(preds, targets, mask, w_s, self.w_t, lt_mask, gt_mask)
 
@@ -165,11 +177,11 @@ class MPNN(pl.LightningModule):
         self.log_dict(metric2loss, batch_size=len(batch[0]))
 
     def _evaluate_batch(self, batch) -> list[Tensor]:
-        bmg, V_d, X_f, targets, _, lt_mask, gt_mask = batch
+        bmg, V_d, X_f, targets, _, lt_mask, gt_mask, mix_mpnn = batch
 
         mask = targets.isfinite()
         targets = targets.nan_to_num(nan=0.0)
-        preds = self(bmg, V_d, X_f)
+        preds = self(bmg, V_d, X_f, mix_mpnn)
 
         return [
             metric(preds, targets, mask, None, None, lt_mask, gt_mask)
@@ -196,9 +208,9 @@ class MPNN(pl.LightningModule):
             ``t`` elements the second target, etc.
             * multiclass classification: ``n x t x c``, where ``c`` is the number of classes
         """
-        bmg, X_vd, X_f, *_ = batch
+        bmg, X_vd, X_f, *_, mix_mpnn = batch
 
-        return self(bmg, X_vd, X_f)
+        return self(bmg, X_vd, X_f, mix_mpnn)
 
     def configure_optimizers(self):
         opt = optim.Adam(self.parameters(), self.init_lr)
@@ -227,7 +239,8 @@ class MPNN(pl.LightningModule):
 
         kwargs |= {
             key: hparams[key].pop("cls")(**hparams[key])
-            for key in ("message_passing", "agg", "predictor") if key not in kwargs
+            for key in ("message_passing", "agg", "predictor")
+            if key not in kwargs
         }
 
         return super().load_from_checkpoint(
