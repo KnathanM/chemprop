@@ -21,15 +21,24 @@ class MulticomponentMessagePassing(nn.Module, HasHParams):
         the number of components in each input
     shared : bool, default=False
         whether one block will be shared among all components in an input.
+    combine : list[bool] | None, default=None
+        whether the output of the mp block at the given index is combined with another mp output.
     """
 
-    def __init__(self, blocks: Sequence[MessagePassing], n_components: int, shared: bool = False):
+    def __init__(
+        self,
+        blocks: Sequence[MessagePassing],
+        n_components: int,
+        shared: bool = False,
+        combine: list[bool] | None = None,
+    ):
         super().__init__()
         self.hparams = {
             "cls": self.__class__,
             "blocks": [block.hparams for block in blocks],
             "n_components": n_components,
             "shared": shared,
+            "combine": combine,
         }
 
         if len(blocks) == 0:
@@ -47,13 +56,14 @@ class MulticomponentMessagePassing(nn.Module, HasHParams):
         self.n_components = n_components
         self.shared = shared
         self.blocks = nn.ModuleList([blocks[0]] * self.n_components if shared else blocks)
+        self.combine = combine if combine is not None else [False] * self.n_components
 
     def __len__(self) -> int:
         return len(self.blocks)
 
     @property
     def output_dim(self) -> int:
-        return sum(block.output_dim for block in self.blocks)
+        return sum(block.output_dim for i, block in enumerate(self.blocks) if not self.combine[i])
 
     def forward(self, bmgs: Iterable[BatchMolGraph], V_ds: Iterable[Tensor | None]) -> list[Tensor]:
         """Encode the multicomponent inputs
