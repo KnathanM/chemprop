@@ -1,2 +1,2 @@
 from .model import MPNN
-from .multi import MulticomponentMPNN
+from .multi import MulticomponentMPNN, MixedComponentMPNN

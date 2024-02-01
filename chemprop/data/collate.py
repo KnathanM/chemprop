@@ -4,6 +4,7 @@ from typing import Iterable, NamedTuple, Sequence
 import numpy as np
 import torch
 from torch import Tensor
+from numpy.typing import ArrayLike
 
 from chemprop.data.datasets import Datum
 from chemprop.featurizers import MolGraph
@@ -109,6 +110,39 @@ def collate_multicomponent(batches: Iterable[Iterable[Datum]]) -> Multicomponent
 
     return MulticomponentTrainingBatch(
         [tb.bmg for tb in tbs],
+        [tb.V_d for tb in tbs],
+        tbs[0].X_f,
+        tbs[0].Y,
+        tbs[0].w,
+        tbs[0].lt_mask,
+        tbs[0].gt_mask,
+    )
+
+
+class MixedComponentTrainingBatch(NamedTuple):
+    bmgs_mixmpgs: tuple[list[BatchMolGraph], tuple[Tensor, ...]]
+    V_ds: list[Tensor]
+    X_f: Tensor | None
+    Y: Tensor | None
+    w: Tensor
+    lt_mask: Tensor | None
+    gt_mask: Tensor | None
+
+
+def collate_mixedcomponent(
+    batches: Iterable[tuple[Iterable[Datum], Iterable[ArrayLike]]]
+) -> MixedComponentTrainingBatch:
+    monocomp_batches = [batch[0] for batch in batches]
+    mixmpgs = [batch[1] for batch in batches]
+    mixmpgs = [
+        torch.from_numpy(np.vstack([mixmpg[i] for mixmpg in mixmpgs])).float()
+        for i in range(len(mixmpgs[0]))
+    ]
+
+    tbs = [collate_batch(monocomp_batch) for monocomp_batch in zip(*monocomp_batches)]
+
+    return MixedComponentTrainingBatch(
+        ([tb.bmg for tb in tbs], mixmpgs),
         [tb.V_d for tb in tbs],
         tbs[0].X_f,
         tbs[0].Y,

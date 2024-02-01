@@ -1,7 +1,7 @@
 from torch.utils.data import DataLoader
 
-from chemprop.data.collate import collate_batch, collate_multicomponent
-from chemprop.data.datasets import MoleculeDataset, MulticomponentDataset, ReactionDataset
+from chemprop.data.collate import collate_batch, collate_multicomponent, collate_mixedcomponent
+from chemprop.data.datasets import MoleculeDataset, MulticomponentDataset, MixedComponentDataset, ReactionDataset
 from chemprop.data.samplers import ClassBalanceSampler, SeededSampler
 
 
@@ -46,6 +46,8 @@ class MolGraphDataLoader(DataLoader):
 
         if isinstance(dataset, MulticomponentDataset):
             collate_fn = collate_multicomponent
+        elif isinstance(dataset, MixedComponentDataset):
+            collate_fn = collate_mixedcomponent
         else:
             collate_fn = collate_batch
 

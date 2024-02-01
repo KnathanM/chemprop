@@ -1,5 +1,6 @@
 from typing import Iterable, Sequence
 import warnings
+from collections import defaultdict
 
 from torch import Tensor, nn
 
@@ -75,3 +76,60 @@ class MulticomponentMessagePassing(nn.Module, HasHParams):
             return [block(bmg) for block, bmg in zip(self.blocks, bmgs)]
         else:
             return [block(bmg, V_d) for block, bmg, V_d in zip(self.blocks, bmgs, V_ds)]
+
+
+class MixedComponentMessagePassing(nn.Module, HasHParams):
+    """A `MixedComponentMessagePassing` performs message-passing ...
+
+    Parameters
+    ----------
+    blocks : type
+        message
+    """
+
+    def __init__(self, blocks: Sequence[list[MessagePassing]]):
+        super().__init__()
+
+        unique_mps = defaultdict(list)
+        for i_group, group_mps in enumerate(blocks):
+            [unique_mps[mp].append(i_group) for mp in group_mps]
+
+        mps, mpms = zip(*unique_mps.items())
+        self.hparams = {"cls": self.__class__, "mps": [mp.hparams for mp in mps], "mpms": mpms}
+
+        for mpm in mpms:
+            if not all(mps[mpm[i]].output_dim == mps[mpm[0]].output_dim for i in range(len(mpm))):
+                raise ValueError(
+                    "All mp blocks in a group must have the same output dimension. "
+                    f"Got {[mps[mpm[i]].output_dim for i in range(len(mpm))]}"
+                )
+
+        self.mps = nn.ModuleList(mps)
+        self.mpms = mpms
+
+    def __len__(self) -> int:
+        return len(self.mpms)
+
+    @property
+    def output_dim(self) -> int:
+        return sum(self.mps[mpm[0]].output_dim for mpm in self.mpms)
+
+    def forward(self, bmgs: Iterable[BatchMolGraph], V_ds: Iterable[Tensor | None]) -> list[Tensor]:
+        """Encode the multicomponent inputs
+
+        Parameters
+        ----------
+        bmgs : Iterable[BatchMolGraph]
+        V_ds : Iterable[Tensor | None]
+
+        Returns
+        -------
+        list[Tensor]
+            a list of tensors of shape `V x d_i` containing the respective encodings of the `i`th component, where `d_i` is the output dimension of the `i`th encoder
+        """
+        blocks = [self.mps[idx] for mpm in self.mpms for idx in mpm]
+
+        if V_ds is None:
+            return [block(bmg) for block, bmg in zip(blocks, bmgs)]
+        else:
+            return [block(bmg, V_d) for block, bmg, V_d in zip(blocks, bmgs, V_ds)]
