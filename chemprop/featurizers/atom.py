@@ -57,7 +57,7 @@ class MultiHotAtomFeaturizer(AtomFeaturizer):
     the final two) can increase in size depending on the input arguments.
     """
 
-    max_atomic_num: InitVar[int] = 100
+    atomic_nums: Sequence[int] = field(default_factory=lambda: list(range(1, 37)) + [53])
     degrees: Sequence[int] = field(default_factory=lambda: range(6))
     formal_charges: Sequence[int] = field(default_factory=lambda: [-1, -2, 1, 2, 0])
     chiral_tags: Sequence[int] = field(default_factory=lambda: range(4))
@@ -72,8 +72,8 @@ class MultiHotAtomFeaturizer(AtomFeaturizer):
         ]
     )
 
-    def __post_init__(self, max_atomic_num: int = 100):
-        self.atomic_nums = {i: i for i in range(max_atomic_num)}
+    def __post_init__(self):
+        self.atomic_nums = {j: i for i, j in enumerate(self.atomic_nums)}
         self.degrees = {i: i for i in self.degrees}
         self.formal_charges = {j: i for i, j in enumerate(self.formal_charges)}
         self.chiral_tags = {i: i for i in self.chiral_tags}
@@ -109,7 +109,7 @@ class MultiHotAtomFeaturizer(AtomFeaturizer):
             return x
 
         feats = [
-            a.GetAtomicNum() - 1,
+            a.GetAtomicNum(),
             a.GetTotalDegree(),
             a.GetFormalCharge(),
             int(a.GetChiralTag()),
