@@ -186,12 +186,11 @@ class MoleculeDataset(_MolGraphDatasetMixin, MolGraphDataset):
 
     @property
     def V_fs(self) -> list[np.ndarray]:
-        """the (scaled) atom descriptors of the dataset"""
+        """the (scaled) atom features of the dataset"""
         return self.__V_fs
 
     @V_fs.setter
     def V_fs(self, V_fs: list[np.ndarray]):
-        """the (scaled) atom features of the dataset"""
         self._validate_attribute(V_fs, "atom features")
 
         self.__V_fs = V_fs
