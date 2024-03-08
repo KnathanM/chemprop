@@ -186,7 +186,7 @@ class MoleculeDataset(_MolGraphDatasetMixin, MolGraphDataset):
 
     @property
     def V_fs(self) -> list[np.ndarray]:
-        """the (scaled) atom features of the dataset"""
+        """the (potentially scaled) atom features of the dataset"""
         return self.__V_fs
 
     @V_fs.setter
@@ -202,7 +202,7 @@ class MoleculeDataset(_MolGraphDatasetMixin, MolGraphDataset):
 
     @property
     def E_fs(self) -> list[np.ndarray]:
-        """the (scaled) bond features of the dataset"""
+        """the (potentially scaled) bond features of the dataset"""
         return self.__E_fs
 
     @E_fs.setter
@@ -218,7 +218,7 @@ class MoleculeDataset(_MolGraphDatasetMixin, MolGraphDataset):
 
     @property
     def V_ds(self) -> list[np.ndarray]:
-        """the (scaled) atom descriptors of the dataset"""
+        """the (potentially scaled) atom descriptors of the dataset"""
         return self.__V_ds
 
     @V_ds.setter
