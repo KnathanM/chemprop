@@ -193,6 +193,8 @@ def build_data_from_files(
 def make_dataset(
     data: Sequence[MoleculeDatapoint] | Sequence[ReactionDatapoint], reaction_mode: str
 ) -> MoleculeDataset | ReactionDataset:
+    if not data:
+        return MoleculeDataset([])
     if isinstance(data[0], MoleculeDatapoint):
         extra_atom_fdim = data[0].V_f.shape[1] if data[0].V_f is not None else 0
         extra_bond_fdim = data[0].E_f.shape[1] if data[0].E_f is not None else 0

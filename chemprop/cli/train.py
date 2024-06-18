@@ -739,16 +739,30 @@ def main(args):
         logger.debug(f"Evaluation metric: '{model.metrics[0].alias}', mode: '{monitor_mode}'")
 
         tb_logger = TensorBoardLogger(output_dir / "tb_logs")
-        checkpointing = ModelCheckpoint(
-            output_dir / "chkpts",
-            "{epoch}-{val_loss:.2f}",
-            "val_loss",
-            mode=monitor_mode,
-            save_last=True,
-        )
 
-        patience = args.patience if args.patience is not None else args.epochs
-        early_stopping = EarlyStopping("val_loss", patience=patience, mode=monitor_mode)
+        callbacks = []
+        if val_loader is not None:
+            checkpointing = ModelCheckpoint(
+                output_dir / "chkpts",
+                "{epoch}-{val_loss:.2f}",
+                "val_loss",
+                mode=monitor_mode,
+                save_last=True,
+            )
+
+            patience = args.patience if args.patience is not None else args.epochs
+            early_stopping = EarlyStopping("val_loss", patience=patience, mode=monitor_mode)
+            callbacks.append(early_stopping)
+        else:
+            checkpointing = ModelCheckpoint(
+                output_dir / "chkpts",
+                "{epoch}-train_loss-{train_loss:.2f}",
+                "train_loss",
+                mode=monitor_mode,
+                save_last=True,
+            )
+
+        callbacks.append(checkpointing)
 
         trainer = pl.Trainer(
             logger=tb_logger,
@@ -756,7 +770,7 @@ def main(args):
             accelerator="auto",
             devices=args.n_gpu if torch.cuda.is_available() else 1,
             max_epochs=args.epochs,
-            callbacks=[checkpointing, early_stopping],
+            callbacks=callbacks,
         )
         trainer.fit(model, train_loader, val_loader)
 
