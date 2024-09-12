@@ -161,9 +161,18 @@ class MPNN(pl.LightningModule):
         metric2loss = {f"val/{m.alias}": l for m, l in zip(self.metrics, losses)}
 
         self.log_dict(metric2loss, batch_size=len(batch[0]))
+
+        bmg, V_d, X_d, targets, weights, lt_mask, gt_mask = batch
+
+        mask = targets.isfinite()
+        targets = targets.nan_to_num(nan=0.0)
+
+        Z = self.fingerprint(bmg, V_d, X_d)
+        preds = self.predictor.train_step(Z)
+        loss = self.metrics[-1](preds, targets, mask, weights, lt_mask, gt_mask)
         self.log(
             "val_loss",
-            losses[0],
+            loss,
             batch_size=len(batch[0]),
             prog_bar=True,
             sync_dist=distributed.is_initialized(),

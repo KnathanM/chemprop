@@ -52,8 +52,6 @@ class Metric(LossFunction):
             Ignored. Maintained for compatibility with :class:`~chemprop.nn.loss.LossFunction`
     """
 
-    minimize: bool = True
-
     def forward(
         self,
         preds: Tensor,
