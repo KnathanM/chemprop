@@ -5,7 +5,11 @@ from lightning.pytorch.utilities.parsing import AttributeDict
 import torch
 
 from chemprop.nn.agg import AggregationRegistry
-from chemprop.nn.message_passing import AtomMessagePassing, BondMessagePassing
+from chemprop.nn.message_passing import (
+    AtomMessagePassing,
+    BondMessagePassing,
+    MulticomponentMessagePassing,
+)
 from chemprop.nn.metrics import LossFunctionRegistry, MetricRegistry
 from chemprop.nn.predictors import PredictorRegistry
 from chemprop.nn.transforms import UnscaleTransform
@@ -19,10 +23,37 @@ def convert_state_dict_v1_to_v2(model_v1_dict: dict) -> dict:
     args_v1 = model_v1_dict["args"]
 
     state_dict_v1 = model_v1_dict["state_dict"]
-    state_dict_v2["message_passing.W_i.weight"] = state_dict_v1["encoder.encoder.0.W_i.weight"]
-    state_dict_v2["message_passing.W_h.weight"] = state_dict_v1["encoder.encoder.0.W_h.weight"]
-    state_dict_v2["message_passing.W_o.weight"] = state_dict_v1["encoder.encoder.0.W_o.weight"]
-    state_dict_v2["message_passing.W_o.bias"] = state_dict_v1["encoder.encoder.0.W_o.bias"]
+
+    if args_v1.reaction_solvent:
+        state_dict_v2["message_passing.blocks.0.W_i.weight"] = state_dict_v1[
+            "encoder.encoder.W_i.weight"
+        ]
+        state_dict_v2["message_passing.blocks.0.W_h.weight"] = state_dict_v1[
+            "encoder.encoder.W_h.weight"
+        ]
+        state_dict_v2["message_passing.blocks.0.W_o.weight"] = state_dict_v1[
+            "encoder.encoder.W_o.weight"
+        ]
+        state_dict_v2["message_passing.blocks.0.W_o.bias"] = state_dict_v1[
+            "encoder.encoder.W_o.bias"
+        ]
+        state_dict_v2["message_passing.blocks.1.W_i.weight"] = state_dict_v1[
+            "encoder.encoder_solvent.W_i.weight"
+        ]
+        state_dict_v2["message_passing.blocks.1.W_h.weight"] = state_dict_v1[
+            "encoder.encoder_solvent.W_h.weight"
+        ]
+        state_dict_v2["message_passing.blocks.1.W_o.weight"] = state_dict_v1[
+            "encoder.encoder_solvent.W_o.weight"
+        ]
+        state_dict_v2["message_passing.blocks.1.W_o.bias"] = state_dict_v1[
+            "encoder.encoder_solvent.W_o.bias"
+        ]
+    else:
+        state_dict_v2["message_passing.W_i.weight"] = state_dict_v1["encoder.encoder.0.W_i.weight"]
+        state_dict_v2["message_passing.W_h.weight"] = state_dict_v1["encoder.encoder.0.W_h.weight"]
+        state_dict_v2["message_passing.W_o.weight"] = state_dict_v1["encoder.encoder.0.W_o.weight"]
+        state_dict_v2["message_passing.W_o.bias"] = state_dict_v1["encoder.encoder.0.W_o.bias"]
 
     for i in range(args_v1.ffn_num_layers):
         suffix = 0 if i == 0 else 2
@@ -33,7 +64,7 @@ def convert_state_dict_v1_to_v2(model_v1_dict: dict) -> dict:
             f"readout.{i * 3 + 1}.bias"
         ]
 
-    if args_v1.dataset_type == "regression":
+    if args_v1.dataset_type == "regression" and model_v1_dict["data_scaler"] is not None:
         state_dict_v2["predictor.output_transform.mean"] = torch.tensor(
             model_v1_dict["data_scaler"]["means"], dtype=torch.float32
         ).unsqueeze(0)
@@ -75,29 +106,88 @@ def convert_hyper_parameters_v1_to_v2(model_v1_dict: dict) -> dict:
     hyper_parameters_v2["max_lr"] = args_v1.max_lr
     hyper_parameters_v2["final_lr"] = args_v1.final_lr
 
-    # convert the message passing block
-    W_i_shape = model_v1_dict["state_dict"]["encoder.encoder.0.W_i.weight"].shape
-    W_h_shape = model_v1_dict["state_dict"]["encoder.encoder.0.W_h.weight"].shape
-    W_o_shape = model_v1_dict["state_dict"]["encoder.encoder.0.W_o.weight"].shape
+    # convert the message passing blocks
+    if args_v1.reaction_solvent:
+        # reaction block
+        W_i_shape = model_v1_dict["state_dict"]["encoder.encoder.W_i.weight"].shape
+        W_h_shape = model_v1_dict["state_dict"]["encoder.encoder.W_h.weight"].shape
+        W_o_shape = model_v1_dict["state_dict"]["encoder.encoder.W_o.weight"].shape
 
-    d_h = W_i_shape[0]
-    d_v = W_o_shape[1] - d_h
-    d_e = W_h_shape[1] - d_h if args_v1.atom_messages else W_i_shape[1] - d_v
+        d_h = W_i_shape[0]
+        d_v = W_o_shape[1] - d_h
+        d_e = W_h_shape[1] - d_h if args_v1.atom_messages else W_i_shape[1] - d_v
 
-    hyper_parameters_v2["message_passing"] = AttributeDict(
-        {
-            "activation": args_v1.activation,
-            "bias": args_v1.bias,
-            "cls": BondMessagePassing if not args_v1.atom_messages else AtomMessagePassing,
-            "d_e": d_e,  # the feature dimension of the edges
-            "d_h": args_v1.hidden_size,  # dimension of the hidden layer
-            "d_v": d_v,  # the feature dimension of the vertices
-            "d_vd": None,  # ``d_vd`` is the number of additional features that will be concatenated to atom-level features *after* message passing
-            "depth": args_v1.depth,
-            "dropout": args_v1.dropout,
-            "undirected": args_v1.undirected,
-        }
-    )
+        block0 = AttributeDict(
+            {
+                "activation": args_v1.activation,
+                "bias": args_v1.bias,
+                "cls": BondMessagePassing if not args_v1.atom_messages else AtomMessagePassing,
+                "d_e": d_e,  # the feature dimension of the edges
+                "d_h": args_v1.hidden_size,  # dimension of the hidden layer
+                "d_v": d_v,  # the feature dimension of the vertices
+                "d_vd": None,  # ``d_vd`` is the number of additional features that will be concatenated to atom-level features *after* message passing
+                "depth": args_v1.depth,
+                "dropout": args_v1.dropout,
+                "undirected": args_v1.undirected,
+            }
+        )
+
+        W_i_shape = model_v1_dict["state_dict"]["encoder.encoder_solvent.W_i.weight"].shape
+        W_h_shape = model_v1_dict["state_dict"]["encoder.encoder_solvent.W_h.weight"].shape
+        W_o_shape = model_v1_dict["state_dict"]["encoder.encoder_solvent.W_o.weight"].shape
+
+        d_h = W_i_shape[0]
+        d_v = W_o_shape[1] - d_h
+        d_e = W_h_shape[1] - d_h if args_v1.atom_messages else W_i_shape[1] - d_v
+
+        block1 = AttributeDict(
+            {
+                "activation": args_v1.activation,
+                "bias": args_v1.bias_solvent,
+                "cls": BondMessagePassing if not args_v1.atom_messages else AtomMessagePassing,
+                "d_e": d_e,  # the feature dimension of the edges
+                "d_h": args_v1.hidden_size_solvent,  # dimension of the hidden layer
+                "d_v": d_v,  # the feature dimension of the vertices
+                "d_vd": None,  # ``d_vd`` is the number of additional features that will be concatenated to atom-level features *after* message passing
+                "depth": args_v1.depth_solvent,
+                "dropout": args_v1.dropout,
+                "undirected": args_v1.undirected,
+            }
+        )
+
+        hyper_parameters_v2["message_passing"] = AttributeDict(
+            {
+                "cls": MulticomponentMessagePassing,
+                "blocks": [block0, block1],
+                "n_components": 2,
+                "shared": False,
+            }
+        )
+        ffn_input_dim = args_v1.hidden_size + args_v1.hidden_size_solvent
+    else:
+        W_i_shape = model_v1_dict["state_dict"]["encoder.encoder.0.W_i.weight"].shape
+        W_h_shape = model_v1_dict["state_dict"]["encoder.encoder.0.W_h.weight"].shape
+        W_o_shape = model_v1_dict["state_dict"]["encoder.encoder.0.W_o.weight"].shape
+
+        d_h = W_i_shape[0]
+        d_v = W_o_shape[1] - d_h
+        d_e = W_h_shape[1] - d_h if args_v1.atom_messages else W_i_shape[1] - d_v
+
+        hyper_parameters_v2["message_passing"] = AttributeDict(
+            {
+                "activation": args_v1.activation,
+                "bias": args_v1.bias,
+                "cls": BondMessagePassing if not args_v1.atom_messages else AtomMessagePassing,
+                "d_e": d_e,  # the feature dimension of the edges
+                "d_h": args_v1.hidden_size,  # dimension of the hidden layer
+                "d_v": d_v,  # the feature dimension of the vertices
+                "d_vd": None,  # ``d_vd`` is the number of additional features that will be concatenated to atom-level features *after* message passing
+                "depth": args_v1.depth,
+                "dropout": args_v1.dropout,
+                "undirected": args_v1.undirected,
+            }
+        )
+        ffn_input_dim = args_v1.hidden_size
 
     # convert the aggregation block
     hyper_parameters_v2["agg"] = {
@@ -126,13 +216,13 @@ def convert_hyper_parameters_v1_to_v2(model_v1_dict: dict) -> dict:
             "task_weights": None,
             "dropout": args_v1.dropout,
             "hidden_dim": args_v1.ffn_hidden_size,
-            "input_dim": args_v1.hidden_size,
+            "input_dim": ffn_input_dim,
             "n_layers": args_v1.ffn_num_layers - 1,
             "n_tasks": args_v1.num_tasks,
         }
     )
 
-    if args_v1.dataset_type == "regression":
+    if args_v1.dataset_type == "regression" and model_v1_dict["data_scaler"] is not None:
         hyper_parameters_v2["predictor"]["output_transform"] = UnscaleTransform(
             model_v1_dict["data_scaler"]["means"], model_v1_dict["data_scaler"]["stds"]
         )

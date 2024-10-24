@@ -64,3 +64,13 @@ def test_classification_converter(tmp_path, data_dir):
 
     convert_model_file_v1_to_v2(model_v1_path, model_v2_save_path)
     assert model_v2_save_path.exists()
+
+def test_reaction_solvent_converter(tmp_path, data_dir):
+    directory = tmp_path / "test_converter"
+    directory.mkdir()
+
+    model_v1_path = data_dir / "example_model_v1_reaction_solvent.pt"
+    model_v2_save_path = directory / "temp.pt"
+
+    convert_model_file_v1_to_v2(model_v1_path, model_v2_save_path)
+    assert model_v2_save_path.exists()
