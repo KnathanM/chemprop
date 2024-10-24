@@ -57,7 +57,19 @@ def convert_hyper_parameters_v1_to_v2(model_v1_dict: dict) -> dict:
 
     args_v1 = model_v1_dict["args"]
     hyper_parameters_v2["batch_norm"] = False
-    hyper_parameters_v2["metrics"] = [Factory.build(MetricRegistry[args_v1.metric])]
+
+    metric_mappings = {
+        "auc": "roc",
+        "prc-auc": "prc",
+        "cross_entropy": "ce",
+        "binary_cross_entropy": "bce",
+        "mcc": "binary-mcc",
+        "quantile_interval": "quantile",
+    }
+    v1_metrics = [metric_mappings.get(metric, metric) for metric in args_v1.metrics]
+    hyper_parameters_v2["metrics"] = [
+        Factory.build(MetricRegistry[v1_metric]) for v1_metric in v1_metrics
+    ]
     hyper_parameters_v2["warmup_epochs"] = args_v1.warmup_epochs
     hyper_parameters_v2["init_lr"] = args_v1.init_lr
     hyper_parameters_v2["max_lr"] = args_v1.max_lr
@@ -106,7 +118,10 @@ def convert_hyper_parameters_v1_to_v2(model_v1_dict: dict) -> dict:
             "activation": args_v1.activation,
             "cls": PredictorRegistry[args_v1.dataset_type],
             "criterion": Factory.build(
-                LossFunctionRegistry[args_v1.loss_function], task_weights=task_weights
+                LossFunctionRegistry[
+                    metric_mappings.get(args_v1.loss_function, args_v1.loss_function)
+                ],
+                task_weights=task_weights,
             ),
             "task_weights": None,
             "dropout": args_v1.dropout,

@@ -53,3 +53,14 @@ def test_converter(tmp_path, example_model_v1_path, example_model_v1_prediction)
     predss = trainer.predict(mpnn, test_loader)
     ys_v2 = np.vstack(predss)
     assert np.allclose(ys_v2, ys_v1, atol=1e-6)
+
+
+def test_classification_converter(tmp_path, data_dir):
+    directory = tmp_path / "test_converter"
+    directory.mkdir()
+
+    model_v1_path = data_dir / "example_model_v1_classification_mol.pt"
+    model_v2_save_path = directory / "temp.pt"
+
+    convert_model_file_v1_to_v2(model_v1_path, model_v2_save_path)
+    assert model_v2_save_path.exists()
