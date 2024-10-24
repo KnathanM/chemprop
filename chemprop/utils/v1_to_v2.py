@@ -49,6 +49,31 @@ def convert_state_dict_v1_to_v2(model_v1_dict: dict) -> dict:
         state_dict_v2["message_passing.blocks.1.W_o.bias"] = state_dict_v1[
             "encoder.encoder_solvent.W_o.bias"
         ]
+    elif args_v1.number_of_molecules == 2:
+        state_dict_v2["message_passing.blocks.0.W_i.weight"] = state_dict_v1[
+            "encoder.encoder.0.W_i.weight"
+        ]
+        state_dict_v2["message_passing.blocks.0.W_h.weight"] = state_dict_v1[
+            "encoder.encoder.0.W_h.weight"
+        ]
+        state_dict_v2["message_passing.blocks.0.W_o.weight"] = state_dict_v1[
+            "encoder.encoder.0.W_o.weight"
+        ]
+        state_dict_v2["message_passing.blocks.0.W_o.bias"] = state_dict_v1[
+            "encoder.encoder.0.W_o.bias"
+        ]
+        state_dict_v2["message_passing.blocks.1.W_i.weight"] = state_dict_v1[
+            "encoder.encoder.1.W_i.weight"
+        ]
+        state_dict_v2["message_passing.blocks.1.W_h.weight"] = state_dict_v1[
+            "encoder.encoder.1.W_h.weight"
+        ]
+        state_dict_v2["message_passing.blocks.1.W_o.weight"] = state_dict_v1[
+            "encoder.encoder.1.W_o.weight"
+        ]
+        state_dict_v2["message_passing.blocks.1.W_o.bias"] = state_dict_v1[
+            "encoder.encoder.1.W_o.bias"
+        ]
     else:
         state_dict_v2["message_passing.W_i.weight"] = state_dict_v1["encoder.encoder.0.W_i.weight"]
         state_dict_v2["message_passing.W_h.weight"] = state_dict_v1["encoder.encoder.0.W_h.weight"]
@@ -164,6 +189,52 @@ def convert_hyper_parameters_v1_to_v2(model_v1_dict: dict) -> dict:
             }
         )
         ffn_input_dim = args_v1.hidden_size + args_v1.hidden_size_solvent
+    elif args_v1.number_of_molecules == 2:
+        W_i_shape = model_v1_dict["state_dict"]["encoder.encoder.0.W_i.weight"].shape
+        W_h_shape = model_v1_dict["state_dict"]["encoder.encoder.0.W_h.weight"].shape
+        W_o_shape = model_v1_dict["state_dict"]["encoder.encoder.0.W_o.weight"].shape
+
+        d_h = W_i_shape[0]
+        d_v = W_o_shape[1] - d_h
+        d_e = W_h_shape[1] - d_h if args_v1.atom_messages else W_i_shape[1] - d_v
+
+        block0 = AttributeDict(
+            {
+                "activation": args_v1.activation,
+                "bias": args_v1.bias,
+                "cls": BondMessagePassing if not args_v1.atom_messages else AtomMessagePassing,
+                "d_e": d_e,  # the feature dimension of the edges
+                "d_h": args_v1.hidden_size,  # dimension of the hidden layer
+                "d_v": d_v,  # the feature dimension of the vertices
+                "d_vd": None,  # ``d_vd`` is the number of additional features that will be concatenated to atom-level features *after* message passing
+                "depth": args_v1.depth,
+                "dropout": args_v1.dropout,
+                "undirected": args_v1.undirected,
+            }
+        )
+        block1 = AttributeDict(
+            {
+                "activation": args_v1.activation,
+                "bias": args_v1.bias,
+                "cls": BondMessagePassing if not args_v1.atom_messages else AtomMessagePassing,
+                "d_e": d_e,  # the feature dimension of the edges
+                "d_h": args_v1.hidden_size,  # dimension of the hidden layer
+                "d_v": d_v,  # the feature dimension of the vertices
+                "d_vd": None,  # ``d_vd`` is the number of additional features that will be concatenated to atom-level features *after* message passing
+                "depth": args_v1.depth,
+                "dropout": args_v1.dropout,
+                "undirected": args_v1.undirected,
+            }
+        )
+        hyper_parameters_v2["message_passing"] = AttributeDict(
+            {
+                "cls": MulticomponentMessagePassing,
+                "blocks": [block0, block1],
+                "n_components": 2,
+                "shared": args_v1.mpn_shared,
+            }
+        )
+        ffn_input_dim = args_v1.hidden_size * 2
     else:
         W_i_shape = model_v1_dict["state_dict"]["encoder.encoder.0.W_i.weight"].shape
         W_h_shape = model_v1_dict["state_dict"]["encoder.encoder.0.W_h.weight"].shape
