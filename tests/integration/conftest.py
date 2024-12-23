@@ -15,6 +15,14 @@ def mpnn(request):
 
     return models.MPNN(message_passing, agg, ffn, True)
 
+@pytest.fixture(scope="session")
+def mol_atom_bond_mpnn(request):
+    message_passing, agg = request.param
+    mol_ffn = nn.RegressionFFN()
+    atom_ffn = nn.RegressionFFN()
+    bond_ffn = nn.RegressionFFN()
+
+    return models.MolAtomBondMPNN(message_passing, agg, mol_ffn, atom_ffn, bond_ffn, True)
 
 @pytest.fixture(scope="session")
 def classification_mpnn_dirichlet(request):

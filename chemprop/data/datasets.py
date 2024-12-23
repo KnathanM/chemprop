@@ -871,3 +871,7 @@ class MulticomponentDataset(_MolGraphDatasetMixin, Dataset):
     @property
     def d_vd(self) -> list[int]:
         return sum(dset.d_vd for dset in self.datasets)
+
+    @property
+    def d_ed(self) -> list[int]:
+        return sum(dset.d_ed for dset in self.datasets)

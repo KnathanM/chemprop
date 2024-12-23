@@ -1,6 +1,8 @@
 """This tests the CLI functionality of training and predicting a regression model on a single molecule.
 """
 
+#how to specify mixed message passing?
+
 import json
 
 import pytest
@@ -9,7 +11,7 @@ import torch
 from chemprop.cli.hpopt import NO_HYPEROPT, NO_OPTUNA, NO_RAY
 from chemprop.cli.main import main
 from chemprop.cli.train import TrainSubcommand
-from chemprop.models.model import MPNN
+from chemprop.models.model import MolAtomBondMPNN
 
 pytestmark = pytest.mark.CLI
 
@@ -17,32 +19,32 @@ pytestmark = pytest.mark.CLI
 @pytest.fixture
 def data_path(data_dir):
     return (
-        str(data_dir / "regression" / "mol" / "mol.csv"),
-        str(data_dir / "regression" / "mol" / "descriptors.npz"),
-        str(data_dir / "regression" / "mol" / "atom_features.npz"),
-        str(data_dir / "regression" / "mol" / "bond_features.npz"),
-        str(data_dir / "regression" / "mol" / "atom_descriptors.npz"),
+        str(data_dir / "regression" / "mixed" / "mixed.csv"),
+        str(data_dir / "regression" / "mixed" / "descriptors.npz"),
+        str(data_dir / "regression" / "mixed" / "atom_features.npz"),
+        str(data_dir / "regression" / "mixed" / "bond_features.npz"),
+        str(data_dir / "regression" / "mixed" / "atom_descriptors.npz"),
     )
 
 
 @pytest.fixture
 def model_path(data_dir):
-    return str(data_dir / "example_model_v2_regression_mol.pt")
+    return str(data_dir / "example_model_v2_regression_mol.pt") # fix
 
 
 @pytest.fixture
 def mve_model_path(data_dir):
-    return str(data_dir / "example_model_v2_regression_mve_mol.pt")
+    return str(data_dir / "example_model_v2_regression_mve_mol.pt") # fix
 
 
 @pytest.fixture
 def evidential_model_path(data_dir):
-    return str(data_dir / "example_model_v2_regression_evidential_mol.pt")
+    return str(data_dir / "example_model_v2_regression_evidential_mol.pt") # fix
 
 
 @pytest.fixture
 def config_path(data_dir):
-    return str(data_dir / "regression" / "mol" / "config.toml")
+    return str(data_dir / "regression" / "mixed" / "config.toml")
 
 
 def test_train_quick(monkeypatch, data_path):
@@ -58,6 +60,7 @@ def test_train_quick(monkeypatch, data_path):
         "--num-workers",
         "0",
         "--show-individual-scores",
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -77,6 +80,7 @@ def test_train_config(monkeypatch, config_path, tmp_path):
         "0",
         "--save-dir",
         str(tmp_path),
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -122,6 +126,7 @@ def test_train_quick_features(monkeypatch, data_path):
         bond_features_path,
         "--atom-descriptors-path",
         atom_descriptors_path,
+        "--is-mixed"
     ]
 
     task_types = ["", "regression-mve", "regression-evidential", "regression-quantile"]
@@ -142,7 +147,7 @@ def test_train_quick_features(monkeypatch, data_path):
 
 def test_predict_quick(monkeypatch, data_path, model_path):
     input_path, *_ = data_path
-    args = ["chemprop", "predict", "-i", input_path, "--model-path", model_path]
+    args = ["chemprop", "predict", "-i", input_path, "--model-path", model_path, "--is-mixed"]
 
     with monkeypatch.context() as m:
         m.setattr("sys.argv", args)
@@ -169,6 +174,7 @@ def test_predict_mve_quick(monkeypatch, data_path, mve_model_path):
         "miscalibration_area",
         "ence",
         "spearman",
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -196,6 +202,7 @@ def test_predict_evidential_quick(monkeypatch, data_path, evidential_model_path)
         "miscalibration_area",
         "ence",
         "spearman",
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -215,6 +222,7 @@ def test_fingerprint_quick(monkeypatch, data_path, model_path, ffn_block_index):
         model_path,
         "--ffn-block-index",
         ffn_block_index,
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -236,6 +244,7 @@ def test_train_output_structure(monkeypatch, data_path, tmp_path):
         "--save-dir",
         str(tmp_path),
         "--save-smiles-splits",
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -274,6 +283,7 @@ def test_train_output_structure_replicate_ensemble(monkeypatch, data_path, tmp_p
         "rmse",
         "--molecule-featurizers",
         "rdkit_2d",
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -305,6 +315,7 @@ def test_train_csv_splits(monkeypatch, data_dir, tmp_path):
         "0",
         "--save-dir",
         str(tmp_path),
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -336,6 +347,7 @@ def test_train_splits_file(monkeypatch, data_path, tmp_path):
         str(tmp_path),
         "--splits-file",
         splits_file,
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -355,6 +367,7 @@ def test_predict_output_structure(monkeypatch, data_path, model_path, tmp_path):
         model_path,
         "--output",
         str(tmp_path / "preds.csv"),
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -381,6 +394,7 @@ def test_fingerprint_output_structure(
         str(tmp_path / "fps.csv"),
         "--ffn-block-index",
         ffn_block_index,
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -404,6 +418,7 @@ def test_train_outputs(monkeypatch, data_path, tmp_path):
         "0",
         "--save-dir",
         str(tmp_path),
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -412,7 +427,7 @@ def test_train_outputs(monkeypatch, data_path, tmp_path):
 
     checkpoint_path = tmp_path / "model_0" / "checkpoints" / "last.ckpt"
 
-    model = MPNN.load_from_checkpoint(checkpoint_path)
+    model = MolAtomBondMPNN.load_from_checkpoint(checkpoint_path)
     assert model is not None
 
 
@@ -436,6 +451,7 @@ def test_freeze_model(monkeypatch, data_path, model_path, tmp_path):
         "1",
         "--accelerator",
         "cpu",
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -444,14 +460,23 @@ def test_freeze_model(monkeypatch, data_path, model_path, tmp_path):
 
     checkpoint_path = tmp_path / "model_0" / "checkpoints" / "last.ckpt"
 
-    trained_model = MPNN.load_from_checkpoint(checkpoint_path)
-    frzn_model = MPNN.load_from_file(model_path)
+    trained_model = MolAtomBondMPNN.load_from_checkpoint(checkpoint_path)
+    frzn_model = MolAtomBondMPNN.load_from_file(model_path)
 
     assert torch.equal(
         trained_model.message_passing.W_o.weight, frzn_model.message_passing.W_o.weight
     )
     assert torch.equal(
-        trained_model.predictor.ffn[0][0].weight, frzn_model.predictor.ffn[0][0].weight
+        trained_model.message_passing.W_o_b.weight, frzn_model.message_passing.W_o_b.weight
+    )
+    assert torch.equal(
+        trained_model.mol_predictor.ffn[0][0].weight, frzn_model.mol_predictor.ffn[0][0].weight
+    )
+    assert torch.equal(
+        trained_model.atom_predictor.ffn[0][0].weight, frzn_model.atom_predictor.ffn[0][0].weight
+    )
+    assert torch.equal(
+        trained_model.bond_predictor.ffn[0][0].weight, frzn_model.bond_predictor.ffn[0][0].weight
     )
 
 
@@ -470,6 +495,7 @@ def test_checkpoint_model(monkeypatch, data_path, model_path, tmp_path):
         str(tmp_path),
         "--checkpoint",
         model_path,
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -478,7 +504,7 @@ def test_checkpoint_model(monkeypatch, data_path, model_path, tmp_path):
 
     checkpoint_path = tmp_path / "model_0" / "checkpoints" / "last.ckpt"
 
-    model = MPNN.load_from_checkpoint(checkpoint_path)
+    model = MolAtomBondMPNN.load_from_checkpoint(checkpoint_path)
     assert model is not None
 
 
@@ -505,6 +531,7 @@ def test_optuna_quick(monkeypatch, data_path, tmp_path):
         "all",
         "--accelerator",
         "cpu",
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -523,6 +550,7 @@ def test_optuna_quick(monkeypatch, data_path, tmp_path):
         str(tmp_path / "best_config.toml"),
         "--save-dir",
         str(tmp_path),
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -555,6 +583,7 @@ def test_hyperopt_quick(monkeypatch, data_path, tmp_path):
         "all",
         "--accelerator",
         "cpu",
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:
@@ -573,6 +602,7 @@ def test_hyperopt_quick(monkeypatch, data_path, tmp_path):
         str(tmp_path / "best_config.toml"),
         "--save-dir",
         str(tmp_path),
+        "--is-mixed",
     ]
 
     with monkeypatch.context() as m:

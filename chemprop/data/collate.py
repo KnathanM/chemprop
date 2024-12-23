@@ -132,6 +132,7 @@ def mixed_collate_batch(batches: Iterable[Iterable[Datum]]) -> list[TrainingBatc
 class MulticomponentTrainingBatch(NamedTuple):
     bmgs: list[BatchMolGraph]
     V_ds: list[Tensor | None]
+    E_ds: list[Tensor | None]
     X_d: Tensor | None
     Y: Tensor | None
     w: Tensor
@@ -145,6 +146,7 @@ def collate_multicomponent(batches: Iterable[Iterable[Datum]]) -> Multicomponent
     return MulticomponentTrainingBatch(
         [tb.bmg for tb in tbs],
         [tb.V_d for tb in tbs],
+        [tb.E_d for tb in tbs],
         tbs[0].X_d,
         tbs[0].Y,
         tbs[0].w,

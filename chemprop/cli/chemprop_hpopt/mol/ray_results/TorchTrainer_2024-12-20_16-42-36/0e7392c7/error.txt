@@ -1,0 +1,35 @@
+Failure # 1 (occurred at 2024-12-20_16-42-45)
+[36mray::_Inner.train()[39m (pid=14210, ip=127.0.0.1, actor_id=2c32c4e80ea58095ad1be8d001000000, repr=TorchTrainer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/envs/chemprop/lib/python3.11/site-packages/ray/tune/trainable/trainable.py", line 331, in train
+    raise skipped from exception_cause(skipped)
+  File "/opt/anaconda3/envs/chemprop/lib/python3.11/site-packages/ray/train/_internal/utils.py", line 57, in check_for_failure
+    ray.get(object_ref)
+           ^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ray.exceptions.RayTaskError(ValueError): [36mray::_RayTrainWorker__execute.get_next()[39m (pid=14211, ip=127.0.0.1, actor_id=ec31d849709d7a2717fe59d601000000, repr=<ray.train._internal.worker_group.RayTrainWorker object at 0x107848e50>)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/envs/chemprop/lib/python3.11/site-packages/ray/train/_internal/worker_group.py", line 33, in __execute
+    raise skipped from exception_cause(skipped)
+  File "/opt/anaconda3/envs/chemprop/lib/python3.11/site-packages/ray/train/_internal/utils.py", line 176, in discard_return_wrapper
+    train_func(*args, **kwargs)
+  File "/Users/brianli/Documents/chemprop/chemprop/cli/hpopt.py", line 394, in <lambda>
+    lambda config: train_model(
+                   ^^^^^^^^^^^^
+  File "/Users/brianli/Documents/chemprop/chemprop/cli/hpopt.py", line 333, in train_model
+    trainer = pl.Trainer(
+              ^^^^^^^^^^^
+  File "/opt/anaconda3/envs/chemprop/lib/python3.11/site-packages/lightning/pytorch/utilities/argparse.py", line 70, in insert_env_defaults
+    return fn(self, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/envs/chemprop/lib/python3.11/site-packages/lightning/pytorch/trainer/trainer.py", line 395, in __init__
+    self._accelerator_connector = _AcceleratorConnector(
+                                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/envs/chemprop/lib/python3.11/site-packages/lightning/pytorch/trainer/connectors/accelerator_connector.py", line 130, in __init__
+    self._check_config_and_set_final_flags(
+  File "/opt/anaconda3/envs/chemprop/lib/python3.11/site-packages/lightning/pytorch/trainer/connectors/accelerator_connector.py", line 218, in _check_config_and_set_final_flags
+    raise ValueError(
+ValueError: You set `strategy=<ray.train.lightning._lightning_utils.RayDDPStrategy object at 0x15dcc6a90>` but strategies from the DDP family are not supported on the MPS accelerator. Either explicitly set `accelerator='cpu'` or change the strategy.

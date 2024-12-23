@@ -1084,16 +1084,11 @@ def build_model(
     else:
         metrics = None
 
-    if len(output_transform) == 1 and output_transform[0] is None:
-        output_transform = output_transform * 3
-    for i in range(3):
-        if args.config_type[i] == 0:
-            output_transform.insert(i, nn.Identity())
     input_dims = [mp_block.output_dim + d_xd] * 3
     input_dims[2] *= 2 #for bond edge input_dim
 
     predictors = [Factory.build(
-        predictor_cls if args.config_type[i] == 1 else FFNMockPredictor,
+        predictor_cls if not args.is_mixed or len(args.mixed_columns[i]) > 0 else FFNMockPredictor,
         input_dim=input_dims[i],
         n_tasks=n_tasks,
         hidden_dim=args.ffn_hidden_dim,
@@ -1104,7 +1099,7 @@ def build_model(
         n_classes=args.multiclass_num_classes,
         output_transform=output_transform[i],
         # spectral_activation=args.spectral_activation, TODO: Add in v2.1
-    ) for i in range(3)]
+    ) for i in range(len(output_transform))]
     
     if args.loss_function is None:
         logger.info(
@@ -1207,7 +1202,10 @@ def train_model(
             trainer_logger = CSVLogger(model_output_dir, "trainer_logs")
 
         if args.tracking_metric == "val_loss":
-            T_tracking_metric = model.criterion[0].__class__
+            if args.is_mixed:
+                T_tracking_metric = model.criterion[0].__class__
+            else:
+                T_tracking_metric = model.criterion.__class__
         else:
             T_tracking_metric = MetricRegistry[args.tracking_metric]
             args.tracking_metric = "val/" + args.tracking_metric
@@ -1278,15 +1276,21 @@ def train_model(
             else:
                 preds = [torch.concat(predss,0)]
             
-            if model.predictors[0].n_targets > 1:
-                mol_preds = mol_preds[..., 0]
+            if args.is_mixed and model.predictors[0].n_targets > 1 or model.predictor.n_targets > 1:
+                for i in range(len(preds)):
+                    preds[i] = preds[i][...,0]
 
             dfs = []
             for i in range(len(preds)):
-                if args.mixed_columns[i]:
+                if args.mixed_columns is not None and args.mixed_columns[i]:
                     preds[i] = preds[i].numpy()
                     dfs.append(evaluate_and_save_predictions(
                         preds[i], test_loader, model.metrics[i][:-1], model_output_dir, args, i
+                    ))
+                else:
+                    preds[0] = preds[0].numpy()
+                    dfs.append(evaluate_and_save_predictions(
+                        preds[0], test_loader, model.metrics[:-1], model_output_dir, args, 0
                     ))
             if len(dfs) == 3:
                 dfs[1] = dfs[1].drop(args.input_columns, axis=1)
@@ -1433,7 +1437,7 @@ def main(args):
 
             if args.is_mixed and "regression" in args.task_type:
                 output_transform = []
-                mol_output_scaler = train_dset.mol_dataset.normalize_targets() # create a mock dataset to set noramlize_targets to none or smth
+                mol_output_scaler = train_dset.mol_dataset.normalize_targets()
                 val_dset.mol_dataset.normalize_targets(mol_output_scaler)
                 output_transform.append(UnscaleTransform.from_standard_scaler(mol_output_scaler))
                 atom_output_scaler = train_dset.atom_dataset.normalize_targets()
@@ -1485,7 +1489,7 @@ def main(args):
             )
         else:
             test_loader = None
-
+            
         train_model(
             args,
             train_loader,

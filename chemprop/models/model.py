@@ -209,7 +209,6 @@ class MPNN(pl.LightningModule):
             * multiclass classification: ``n x t x c``, where ``c`` is the number of classes
         """
         bmg, X_vd, X_ed, X_d, *_ = batch
-
         return self(bmg, X_vd, X_d)
 
     def configure_optimizers(self):

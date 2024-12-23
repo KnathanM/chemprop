@@ -480,7 +480,7 @@ def build_data_from_files(
         **featurization_kwargs,
     )
 
-    return mol_data + rxn_data
+    return mol_data + mol_rxn_data
 
 def build_mixed_data_from_files(
     p_data: PathLike,

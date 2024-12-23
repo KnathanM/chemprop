@@ -67,7 +67,7 @@ def test_overfit(mpnn, dataloader):
 
     errors = []
     for batch in dataloader:
-        bmg, _, _, targets, *_ = batch
+        bmg, _, _, _, targets, *_ = batch #update all other tests to index one more term
         preds = mpnn(bmg)
         errors.append(preds - targets)
 

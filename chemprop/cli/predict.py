@@ -259,11 +259,13 @@ def make_prediction_for_models(
         cal_loader = prepare_data_loader(args, multicomponent, True, format_kwargs)
         logger.info(f"calibration size: {len(cal_loader.dataset)}")
 
+    if args.is_mixed:
+        args.uncertainty_method = "mixed_" + args.uncertainty_method
     uncertainty_estimator = Factory.build(
         UncertaintyEstimatorRegistry[args.uncertainty_method],
         ensemble_size=args.dropout_sampling_size,
         dropout=args.uncertainty_dropout_p,
-    )
+    ) # make is_mixed one if args.is_mixed is true. 
 
     trainer = pl.Trainer(
         logger=False, enable_progress_bar=True, accelerator=args.accelerator, devices=args.devices
@@ -271,9 +273,13 @@ def make_prediction_for_models(
     test_individual_preds, test_individual_uncs = uncertainty_estimator(
         test_loader, models, trainer
     )
+    if not args.is_mixed:
+        test_individual_preds = [test_individual_preds]
+        test_individual_uncs = [test_individual_uncs]
     test_preds = []
     test_uncs = []
     for idx, individual_pred in enumerate(test_individual_preds):
+        print(individual_pred)
         test_preds.append(torch.mean(individual_pred, dim=0))
 
         if not isinstance(uncertainty_estimator, NoUncertaintyEstimator):
@@ -304,6 +310,7 @@ def make_prediction_for_models(
                     uncertainty_calibrator.fit(cal_preds, cal_uncs, cal_targets, cal_mask)
                 else:
                     uncertainty_calibrator.fit(cal_uncs, cal_targets, cal_mask)
+                print(args.uncertainty_method)
                 test_uncs[idx] = uncertainty_calibrator.apply(test_uncs[idx])
                 for i in range(test_individual_uncs[idx].shape[0]):
                     test_individual_uncs[idx][i] = uncertainty_calibrator.apply(test_individual_uncs[idx][i])
@@ -325,17 +332,24 @@ def make_prediction_for_models(
                     metric_value = evaluator.evaluate(test_uncs[idx], test_targets, test_mask)
                 logger.info(f"{evaluator.alias}: {metric_value.tolist()}")
 
-        if args.uncertainty_method == "none" and (
-            isinstance(models[0].predictors[0], MveFFN) or isinstance(models[0].predictors[0], EvidentialFFN)
-        ):
-            test_preds[idx] = test_preds[idx][..., 0]
-            test_individual_preds[idx] = test_individual_preds[idx][..., 0]
+        if args.uncertainty_method == "none":
+            if args.is_mixed and (isinstance(models[0].predictors[0], MveFFN) or isinstance(models[0].predictors[0], EvidentialFFN)):
+                test_preds[idx] = test_preds[idx][..., 0]
+                test_individual_preds[idx] = test_individual_preds[idx][..., 0]
+            elif isinstance(models[0].predictor, MveFFN) or isinstance(models[0].predictor, EvidentialFFN):
+                test_preds[idx] = test_preds[idx][..., 0]
+                test_individual_preds[idx] = test_individual_preds[idx][..., 0]
 
         if output_columns is None:
+            print(test_preds[idx])
             output_columns = [
                 f"pred_{i}" for i in range(test_preds[idx].shape[1])
             ]  # TODO: need to improve this for cases like multi-task MVE and multi-task multiclass
 
+    if not args.is_mixed:
+        test_preds = test_preds[0] if test_preds is not None else None
+        test_uncs = test_uncs[0] if test_uncs is not None else None
+        
     save_predictions(args, models[0], output_columns, mixed_columns, test_preds, test_uncs, output_path, test_loader)
 
     if len(model_paths) > 1:
@@ -355,7 +369,7 @@ def make_prediction_for_models(
 def save_predictions(args, model, output_columns, mixed_columns, test_preds, test_uncs, output_path, test_loader):
     unc_columns = [f"{col}_unc" for col in output_columns]
 
-    if isinstance(model.predictors[0], MulticlassClassificationFFN):
+    if (args.is_mixed and isinstance(model.predictors[0], MulticlassClassificationFFN)) or isinstance(model.predictor, MulticlassClassificationFFN):
         output_columns = output_columns + [f"{col}_prob" for col in output_columns]
         predicted_class_labels = test_preds.argmax(axis=-1)
         formatted_probability_strings = np.apply_along_axis(
@@ -419,7 +433,7 @@ def save_individual_predictions(
         f"{col}_unc_model_{i}" for i in range(len(model_paths)) for col in output_columns
     ]
 
-    if isinstance(model.predictor, MulticlassClassificationFFN):
+    if (args.is_mixed and isinstance(model.predictors[0], MulticlassClassificationFFN)) or isinstance(model.predictor, MulticlassClassificationFFN):
         output_columns = [
             item
             for i in range(len(model_paths))
