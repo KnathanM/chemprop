@@ -58,7 +58,8 @@ class _MessagePassingBase(MessagePassing, HyperparametersMixin):
         d_vd: int | None = None,
         d_ed: int | None = None,
         V_d_transform: ScaleTransform | None = None,
-        E_d_transform: ScaleTransform | None = None, # should we change init here or localize to bond?
+        E_d_transform: ScaleTransform
+        | None = None,  # should we change init here or localize to bond?
         graph_transform: GraphTransform | None = None,
         # layers_per_message: int = 1,
     ):
@@ -276,7 +277,6 @@ class BondMessagePassing(_MessagePassingBase):
 
 
 class MixedBondMessagePassing(BondMessagePassing):
-
     def setup(
         self,
         d_v: int = DEFAULT_ATOM_FDIM,
@@ -295,7 +295,9 @@ class MixedBondMessagePassing(BondMessagePassing):
 
         return W_i, W_h, W_o, W_d, W_o_b, W_ed
 
-    def finalize(self, H: Tensor, M: Tensor, V: Tensor, E: Tensor, V_d: Tensor | None, E_d: Tensor | None) -> tuple[Tensor]:
+    def finalize(
+        self, H: Tensor, M: Tensor, V: Tensor, E: Tensor, V_d: Tensor | None, E_d: Tensor | None
+    ) -> tuple[Tensor]:
         H_v = self.W_o(torch.cat((V, M), dim=1))
         H_v = self.tau(H_v)
         H_v = self.dropout(H_v)
@@ -321,9 +323,9 @@ class MixedBondMessagePassing(BondMessagePassing):
 
         return H_v, H_b
 
-    #alternative: apply finalize twice. 
-
-    def forward(self, bmg: BatchMolGraph, V_d: Tensor | None = None, E_d: Tensor | None = None) -> tuple[Tensor]:
+    def forward(
+        self, bmg: BatchMolGraph, V_d: Tensor | None = None, E_d: Tensor | None = None
+    ) -> tuple[Tensor]:
         bmg = self.graph_transform(bmg)
         H_0 = self.initialize(bmg)
 
@@ -392,7 +394,6 @@ class AtomMessagePassing(_MessagePassingBase):
 
 
 class MixedAtomMessagePassing(AtomMessagePassing):
-
     def setup(
         self,
         d_v: int = DEFAULT_ATOM_FDIM,
@@ -411,7 +412,9 @@ class MixedAtomMessagePassing(AtomMessagePassing):
 
         return W_i, W_h, W_o, W_d, W_o_b, W_ed
 
-    def finalize(self, H: Tensor, M: Tensor, V: Tensor, E: Tensor, V_d: Tensor | None, E_d: Tensor | None) -> tuple[Tensor]:
+    def finalize(
+        self, H: Tensor, M: Tensor, V: Tensor, E: Tensor, V_d: Tensor | None, E_d: Tensor | None
+    ) -> tuple[Tensor]:
         H_v = self.W_o(torch.cat((V, M), dim=1))
         H_v = self.tau(H_v)
         H_v = self.dropout(H_v)
@@ -437,9 +440,9 @@ class MixedAtomMessagePassing(AtomMessagePassing):
 
         return H_v, H_b
 
-    #alternative: apply finalize twice. 
-
-    def forward(self, bmg: BatchMolGraph, V_d: Tensor | None = None, E_d: Tensor | None = None) -> tuple[Tensor]:
+    def forward(
+        self, bmg: BatchMolGraph, V_d: Tensor | None = None, E_d: Tensor | None = None
+    ) -> tuple[Tensor]:
         bmg = self.graph_transform(bmg)
         H_0 = self.initialize(bmg)
 
@@ -456,4 +459,3 @@ class MixedAtomMessagePassing(AtomMessagePassing):
             0, index_torch, H, reduce="sum", include_self=False
         )
         return self.finalize(H, M, bmg.V, bmg.E, V_d, E_d)
-

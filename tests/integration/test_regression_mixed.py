@@ -8,7 +8,15 @@ import torch
 from torch.utils.data import DataLoader
 
 from chemprop import nn
-from chemprop.data import MoleculeDataset, AtomDataset, BondDataset, MolAtomBondDataset, MoleculeDatapoint, mixed_collate_batch, collate_batch
+from chemprop.data import (
+    AtomDataset,
+    BondDataset,
+    MockDataset,
+    MolAtomBondDataset,
+    MoleculeDatapoint,
+    MoleculeDataset,
+    mixed_collate_batch,
+)
 
 pytestmark = [
     pytest.mark.parametrize(
@@ -28,29 +36,45 @@ def data(mixed_regression_data):
     smis, mol_Y, atom_Y, bond_Y = mixed_regression_data
 
     all_data = []
-    all_data.append([MoleculeDatapoint.from_smi(smi, y, keep_h=True, keep_atom_map=True) for smi, y in zip(smis, mol_Y)])
-    all_data.append([MoleculeDatapoint.from_smi(smi, y, keep_h=True, keep_atom_map=True) for smi, y in zip(smis, atom_Y)])
-    all_data.append([MoleculeDatapoint.from_smi(smi, y, keep_h=True, keep_atom_map=True) for smi, y in zip(smis, bond_Y)])
+    all_data.append(
+        [
+            MoleculeDatapoint.from_smi(smi, y, keep_h=True, keep_atom_map=True)
+            for smi, y in zip(smis, mol_Y)
+        ]
+    )
+    all_data.append(
+        [
+            MoleculeDatapoint.from_smi(smi, y, keep_h=True, keep_atom_map=True)
+            for smi, y in zip(smis, atom_Y)
+        ]
+    )
+    all_data.append(
+        [
+            MoleculeDatapoint.from_smi(smi, y, keep_h=True, keep_atom_map=True)
+            for smi, y in zip(smis, bond_Y)
+        ]
+    )
     return all_data
+
 
 @pytest.fixture
 def dataloader(data):
     dsets = []
-    if all_data[0]:
+    if data[0]:
         dset = MoleculeDataset(data)
         dset.normalize_targets()
         dsets.append(dset)
     else:
         dsets.append(MockDataset())
 
-    if all_data[0]:
+    if data[1]:
         dset = AtomDataset(data)
         dset.normalize_targets()
         dsets.append(dset)
     else:
         dsets.append(MockDataset())
 
-    if all_data[0]:
+    if data[2]:
         dset = BondDataset(data)
         dset.normalize_targets()
         dsets.append(dset)

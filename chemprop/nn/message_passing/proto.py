@@ -14,7 +14,9 @@ class MessagePassing(nn.Module, HasHParams):
     output_dim: int
 
     @abstractmethod
-    def forward(self, bmg: BatchMolGraph, V_d: Tensor | None = None, E_d: Tensor | None = None) -> Tensor:
+    def forward(
+        self, bmg: BatchMolGraph, V_d: Tensor | None = None, E_d: Tensor | None = None
+    ) -> Tensor:
         """Encode a batch of molecular graphs.
 
         Parameters

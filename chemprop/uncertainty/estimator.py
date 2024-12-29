@@ -15,7 +15,10 @@ class UncertaintyEstimator(ABC):
 
     @abstractmethod
     def __call__(
-        self, dataloader: DataLoader, models: Iterable[MPNN] | Iterable[MolAtomBondMPNN], trainer: pl.Trainer
+        self,
+        dataloader: DataLoader,
+        models: Iterable[MPNN] | Iterable[MolAtomBondMPNN],
+        trainer: pl.Trainer,
     ) -> tuple[Tensor, Tensor]:
         """
         Calculate the uncalibrated predictions and uncertainties for the dataloader.
@@ -62,21 +65,26 @@ class NoUncertaintyEstimator(UncertaintyEstimator):
             predss.append(preds)
         return torch.stack(predss), None
 
+
 @UncertaintyEstimatorRegistry.register("mixed_none")
 class MixedNoUncertaintyEstimator(UncertaintyEstimator):
     def __call__(
         self, dataloader: DataLoader, models: Iterable[MolAtomBondMPNN], trainer: pl.Trainer
     ) -> tuple[Tensor, Tensor]:
-        preds = [torch.concat(type,0) for type in zip(*trainer.predict(models[0], dataloader))]
+        preds = [torch.concat(type, 0) for type in zip(*trainer.predict(models[0], dataloader))]
         predss = []
         for pred in preds:
             predss.append([pred])
         if len(models) > 1:
-            for model_idx in range(1,len(models)):
-                preds = [torch.concat(type,0) for type in zip(*trainer.predict(models[model_idx], dataloader))]
+            for model_idx in range(1, len(models)):
+                preds = [
+                    torch.concat(type, 0)
+                    for type in zip(*trainer.predict(models[model_idx], dataloader))
+                ]
                 for pred_idx in range(len(preds)):
                     predss[pred_idx].append(preds[pred_idx])
         return [torch.stack(prediction) for prediction in predss], None
+
 
 @UncertaintyEstimatorRegistry.register("mve")
 class MVEEstimator(UncertaintyEstimator):

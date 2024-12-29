@@ -96,6 +96,7 @@ class Predictor(nn.Module, HasHParams):
 
 PredictorRegistry = ClassRegistry[Predictor]()
 
+
 class FFNMockPredictor(Predictor, HyperparametersMixin):
     _T_default_criterion: ChempropMetric
     _T_default_metric: ChempropMetric
@@ -114,7 +115,7 @@ class FFNMockPredictor(Predictor, HyperparametersMixin):
         return 0
 
     def forward(self, Z: Tensor) -> Tensor:
-        return torch.tensor([], device=Z.device()) 
+        return torch.tensor([], device=Z.device())
 
     def encode(self, Z: Tensor, i: int) -> Tensor:
         return torch.tensor([], device=Z.device())

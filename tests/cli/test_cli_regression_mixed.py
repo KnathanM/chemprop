@@ -1,8 +1,6 @@
 """This tests the CLI functionality of training and predicting a regression model on a single molecule.
 """
 
-#how to specify mixed message passing?
-
 import json
 
 import pytest
@@ -29,17 +27,17 @@ def data_path(data_dir):
 
 @pytest.fixture
 def model_path(data_dir):
-    return str(data_dir / "example_model_v2_regression_mol.pt") # fix
+    return str(data_dir / "example_model_v2_regression_mol.pt")  # fix
 
 
 @pytest.fixture
 def mve_model_path(data_dir):
-    return str(data_dir / "example_model_v2_regression_mve_mol.pt") # fix
+    return str(data_dir / "example_model_v2_regression_mve_mol.pt")  # fix
 
 
 @pytest.fixture
 def evidential_model_path(data_dir):
-    return str(data_dir / "example_model_v2_regression_evidential_mol.pt") # fix
+    return str(data_dir / "example_model_v2_regression_evidential_mol.pt")  # fix
 
 
 @pytest.fixture
@@ -126,7 +124,7 @@ def test_train_quick_features(monkeypatch, data_path):
         bond_features_path,
         "--atom-descriptors-path",
         atom_descriptors_path,
-        "--is-mixed"
+        "--is-mixed",
     ]
 
     task_types = ["", "regression-mve", "regression-evidential", "regression-quantile"]

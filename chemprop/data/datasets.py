@@ -8,7 +8,6 @@ from rdkit import Chem
 from rdkit.Chem import Mol
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import Dataset
-from torch import nn
 
 from chemprop.data.datapoints import MoleculeDatapoint, ReactionDatapoint
 from chemprop.data.molgraph import MolGraph
@@ -145,6 +144,7 @@ class _MolGraphDatasetMixin:
                 f"number of molecules ({len(self.data)}) and {label} ({len(X)}) "
                 "must have same length!"
             )
+
 
 @dataclass
 class MockDataset(_MolGraphDatasetMixin, MolGraphDataset):
@@ -346,6 +346,7 @@ class MockDataset(_MolGraphDatasetMixin, MolGraphDataset):
         self.__V_ds = self._V_ds
         self.__E_ds = self._E_ds
 
+
 @dataclass
 class MoleculeDataset(_MolGraphDatasetMixin, MolGraphDataset):
     """A :class:`MoleculeDataset` composed of :class:`MoleculeDatapoint`\s
@@ -379,7 +380,16 @@ class MoleculeDataset(_MolGraphDatasetMixin, MolGraphDataset):
         d = self.data[idx]
         mg = self.mg_cache[idx]
 
-        return Datum(mg, self.V_ds[idx], self.E_ds[idx], self.X_d[idx], self.Y[idx], d.weight, d.lt_mask, d.gt_mask)
+        return Datum(
+            mg,
+            self.V_ds[idx],
+            self.E_ds[idx],
+            self.X_d[idx],
+            self.Y[idx],
+            d.weight,
+            d.lt_mask,
+            d.gt_mask,
+        )
 
     @property
     def cache(self) -> bool:
@@ -638,9 +648,6 @@ class MolAtomBondDataset(_MolGraphDatasetMixin, MolGraphDataset):
 
     def __post_init__(self):
         self.datasets = [self.mol_dataset, self.atom_dataset, self.bond_dataset]
-        sizes = [len(dset) for dset in self.datasets]
-        #if not all(sizes[0] == size for size in sizes[1:]):
-            #raise ValueError(f"Datasets must have all same length! got: {sizes}")
 
     def __len__(self) -> int:
         return len(self.datasets[0])
@@ -652,16 +659,20 @@ class MolAtomBondDataset(_MolGraphDatasetMixin, MolGraphDataset):
     def __getitem__(self, idx: int) -> list[Datum]:
         mixed_list = []
         for dset in self.datasets:
-            mixed_list.append(Datum(
-                dset[idx].mg, 
-                dset[idx].V_d, 
-                dset[idx].E_d, 
-                dset[idx].x_d, 
-                dset[idx].y, 
-                dset[idx].weight, 
-                dset[idx].lt_mask,
-                dset[idx].gt_mask,
-            ) if dset[idx] is not None else None)
+            mixed_list.append(
+                Datum(
+                    dset[idx].mg,
+                    dset[idx].V_d,
+                    dset[idx].E_d,
+                    dset[idx].x_d,
+                    dset[idx].y,
+                    dset[idx].weight,
+                    dset[idx].lt_mask,
+                    dset[idx].gt_mask,
+                )
+                if dset[idx] is not None
+                else None
+            )
 
         return mixed_list
 
@@ -680,16 +691,13 @@ class MolAtomBondDataset(_MolGraphDatasetMixin, MolGraphDataset):
     def normalize_targets(self, scaler: StandardScaler | None = None) -> StandardScaler:
         return self.datasets[0].normalize_targets(scaler)
 
-    def normalize_inputs( #CHANGE
+    def normalize_inputs(  # CHANGE
         self, key: str = "X_d", scaler: list[StandardScaler] | None = None
     ) -> list[StandardScaler]:
         match scaler:
             case None:
                 return [
-                    dset.normalize_inputs(key)
-                    if isinstance(dset, MoleculeDataset) or key in RXN_VALID_KEYS
-                    else None
-                    for dset in self.datasets
+                    dset.normalize_inputs(key) for dset in self.datasets
                 ]
             case _:
                 assert len(scaler) == len(
@@ -697,10 +705,7 @@ class MolAtomBondDataset(_MolGraphDatasetMixin, MolGraphDataset):
                 ), "Number of scalers must match number of datasets!"
 
                 return [
-                    dset.normalize_inputs(key, s)
-                    if isinstance(dset, MoleculeDataset) or key in RXN_VALID_KEYS
-                    else None
-                    for dset, s in zip(self.datasets, scaler)
+                    dset.normalize_inputs(key, s) for dset, s in zip(self.datasets, scaler)
                 ]
 
     def reset(self):

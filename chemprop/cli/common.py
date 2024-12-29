@@ -28,28 +28,16 @@ def add_common_args(parser: ArgumentParser) -> ArgumentParser:
         action="store_true",
         help="Turn off using the first row in the input CSV as column names",
     )
-    #data_args.add_argument(
-        #"--is-atom-bond-targets",
-        #action="store_true",
-        #help="Whether or not the targets are for atom/bond type versus molecule type",
-    #)
     data_args.add_argument(
         "--is-mixed",
         action="store_true",
-        help="If some of the targets are intended for molecules, some for atoms, and some for bonds"
+        help="If some of the targets are intended for molecules, some for atoms, and some for bonds",
     )
     data_args.add_argument(
         "--mixed-columns",
         nargs="+",
-        help="Target columns that correspond to molecule (first index), atom (second index), and bond (third index) predictions"
+        help="Target columns that correspond to molecule (first index), atom (second index), and bond (third index) predictions",
     )
-    #data_args.add_argument(
-       # "--config-type",
-       # type=float,
-       # nargs=3,
-       # default=[1, 1, 1],
-       # help="Target columns type (whether they have molecule, atom, or bond predictions)"
-    #)
     dataloader_args = parser.add_argument_group("Dataloader args")
     dataloader_args.add_argument(
         "-n",

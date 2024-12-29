@@ -37,9 +37,9 @@ from chemprop.cli.utils import (
 from chemprop.cli.utils.args import uppercase
 from chemprop.data import (
     MockDataset,
+    MolAtomBondDataset,
     MoleculeDataset,
     MolGraphDataset,
-    MolAtomBondDataset,
     MulticomponentDataset,
     ReactionDatapoint,
     SplitType,
@@ -48,8 +48,14 @@ from chemprop.data import (
     split_data_by_indices,
 )
 from chemprop.data.datasets import _MolGraphDatasetMixin
-from chemprop.models import MPNN, MulticomponentMPNN, MolAtomBondMPNN, save_model
-from chemprop.nn import AggregationRegistry, LossFunctionRegistry, MetricRegistry, PredictorRegistry, FFNMockPredictor
+from chemprop.models import MPNN, MolAtomBondMPNN, MulticomponentMPNN, save_model
+from chemprop.nn import (
+    AggregationRegistry,
+    FFNMockPredictor,
+    LossFunctionRegistry,
+    MetricRegistry,
+    PredictorRegistry,
+)
 from chemprop.nn.message_passing import (
     AtomMessagePassing,
     BondMessagePassing,
@@ -810,7 +816,7 @@ def build_splits(args, format_kwargs, featurization_kwargs):
         splitting_data = all_data[args.split_key_molecule]
         if isinstance(splitting_data[0], ReactionDatapoint):
             splitting_mols = [datapoint.rct for datapoint in splitting_data]
-        else: # works for is_mixed too since all_data[0] is coincidentally what we want
+        else:  # works for is_mixed too since all_data[0] is coincidentally what we want
             splitting_mols = [datapoint.mol for datapoint in splitting_data]
         train_indices, val_indices, test_indices = make_split_indices(
             splitting_mols, args.split, args.split_sizes, args.data_seed, args.num_replicates
@@ -935,18 +941,26 @@ def build_datasets(args, train_data, val_data, test_data):
             test_dset = None
     elif args.is_mixed:
         train_dsets = [
-            make_dataset(train_data[data], args.rxn_mode, args.multi_hot_atom_featurizer_mode, data) if args.mixed_columns[data] else MockDataset()
+            make_dataset(train_data[data], args.rxn_mode, args.multi_hot_atom_featurizer_mode, data)
+            if args.mixed_columns[data]
+            else MockDataset()
             for data in range(len(train_data))
         ]
         val_dsets = [
-            make_dataset(val_data[data], args.rxn_mode, args.multi_hot_atom_featurizer_mode, data) if args.mixed_columns[data] else MockDataset()
+            make_dataset(val_data[data], args.rxn_mode, args.multi_hot_atom_featurizer_mode, data)
+            if args.mixed_columns[data]
+            else MockDataset()
             for data in range(len(val_data))
         ]
         train_dset = MolAtomBondDataset(train_dsets[0], train_dsets[1], train_dsets[2])
         val_dset = MolAtomBondDataset(val_dsets[0], val_dsets[1], val_dsets[2])
         if len(test_data[0]) > 0:
             test_dsets = [
-                make_dataset(test_data[data], args.rxn_mode, args.multi_hot_atom_featurizer_mode, data) if args.mixed_columns[data] else MockDataset()
+                make_dataset(
+                    test_data[data], args.rxn_mode, args.multi_hot_atom_featurizer_mode, data
+                )
+                if args.mixed_columns[data]
+                else MockDataset()
                 for data in range(len(test_data))
             ]
             test_dset = MolAtomBondDataset(test_dsets[0], test_dsets[1], test_dsets[2])
@@ -977,7 +991,9 @@ def build_model(
     args,
     train_dset: MolGraphDataset | MolAtomBondDataset | MulticomponentDataset,
     output_transform: list[UnscaleTransform],
-    input_transforms: tuple[ScaleTransform, list[GraphTransform], list[ScaleTransform], list[ScaleTransform]],
+    input_transforms: tuple[
+        ScaleTransform, list[GraphTransform], list[ScaleTransform], list[ScaleTransform]
+    ],
 ) -> MPNN | MulticomponentMPNN:
     if args.is_mixed:
         mp_cls = MixedAtomMessagePassing if args.atom_messages else MixedBondMessagePassing
@@ -1085,22 +1101,27 @@ def build_model(
         metrics = None
 
     input_dims = [mp_block.output_dim + d_xd] * 3
-    input_dims[2] *= 2 #for bond edge input_dim
+    input_dims[2] *= 2  # for bond edge input_dim
 
-    predictors = [Factory.build(
-        predictor_cls if not args.is_mixed or len(args.mixed_columns[i]) > 0 else FFNMockPredictor,
-        input_dim=input_dims[i],
-        n_tasks=n_tasks,
-        hidden_dim=args.ffn_hidden_dim,
-        n_layers=args.ffn_num_layers,
-        dropout=args.dropout,
-        activation=args.activation,
-        criterion=criterion,
-        n_classes=args.multiclass_num_classes,
-        output_transform=output_transform[i],
-        # spectral_activation=args.spectral_activation, TODO: Add in v2.1
-    ) for i in range(len(output_transform))]
-    
+    predictors = [
+        Factory.build(
+            predictor_cls
+            if not args.is_mixed or len(args.mixed_columns[i]) > 0
+            else FFNMockPredictor,
+            input_dim=input_dims[i],
+            n_tasks=n_tasks,
+            hidden_dim=args.ffn_hidden_dim,
+            n_layers=args.ffn_num_layers,
+            dropout=args.dropout,
+            activation=args.activation,
+            criterion=criterion,
+            n_classes=args.multiclass_num_classes,
+            output_transform=output_transform[i],
+            # spectral_activation=args.spectral_activation, TODO: Add in v2.1
+        )
+        for i in range(len(output_transform))
+    ]
+
     if args.loss_function is None:
         logger.info(
             f"No loss function was specified! Using class default: {predictor_cls._T_default_criterion}"
@@ -1167,7 +1188,7 @@ def train_model(
                 mpnn_cls = MolAtomBondMPNN
             else:
                 mpnn_cls = MPNN
-            
+
             model_path = model_paths[model_idx] if args.checkpoint else args.model_frzn
             model = mpnn_cls.load_from_file(model_path)
 
@@ -1274,24 +1295,28 @@ def train_model(
                 preds.append(torch.concat([predss[0][1]], 0))
                 preds.append(torch.concat([predss[0][2]], 0))
             else:
-                preds = [torch.concat(predss,0)]
-            
+                preds = [torch.concat(predss, 0)]
+
             if args.is_mixed and model.predictors[0].n_targets > 1 or model.predictor.n_targets > 1:
                 for i in range(len(preds)):
-                    preds[i] = preds[i][...,0]
+                    preds[i] = preds[i][..., 0]
 
             dfs = []
             for i in range(len(preds)):
                 if args.mixed_columns is not None and args.mixed_columns[i]:
                     preds[i] = preds[i].numpy()
-                    dfs.append(evaluate_and_save_predictions(
-                        preds[i], test_loader, model.metrics[i][:-1], model_output_dir, args, i
-                    ))
+                    dfs.append(
+                        evaluate_and_save_predictions(
+                            preds[i], test_loader, model.metrics[i][:-1], model_output_dir, args, i
+                        )
+                    )
                 else:
                     preds[0] = preds[0].numpy()
-                    dfs.append(evaluate_and_save_predictions(
-                        preds[0], test_loader, model.metrics[:-1], model_output_dir, args, 0
-                    ))
+                    dfs.append(
+                        evaluate_and_save_predictions(
+                            preds[0], test_loader, model.metrics[:-1], model_output_dir, args, 0
+                        )
+                    )
             if len(dfs) == 3:
                 dfs[1] = dfs[1].drop(args.input_columns, axis=1)
                 dfs[2] = dfs[2].drop(args.input_columns, axis=1)
@@ -1304,7 +1329,7 @@ def train_model(
             else:
                 df_comb = dfs[0]
                 df_comb.to_csv(model_output_dir / "test_predictions.csv", index=False)
-            
+
         best_model_path = checkpointing.best_model_path
         model = model.__class__.load_from_checkpoint(best_model_path)
         p_model = model_output_dir / "best.pt"
@@ -1331,8 +1356,16 @@ def evaluate_and_save_predictions(preds, test_loader, metrics, model_output_dir,
     mask = torch.from_numpy(np.isfinite(targets))
     targets = np.nan_to_num(targets, nan=0.0)
     weights = torch.ones(targets.shape[0])
-    lt_mask = torch.from_numpy(test_dset.lt_mask) if test_dset.lt_mask[0] is not None and test_dset.lt_mask[0][0] is not None else None
-    gt_mask = torch.from_numpy(test_dset.gt_mask) if test_dset.gt_mask[0] is not None and test_dset.gt_mask[0][0] is not None else None
+    lt_mask = (
+        torch.from_numpy(test_dset.lt_mask)
+        if test_dset.lt_mask[0] is not None and test_dset.lt_mask[0][0] is not None
+        else None
+    )
+    gt_mask = (
+        torch.from_numpy(test_dset.gt_mask)
+        if test_dset.gt_mask[0] is not None and test_dset.gt_mask[0][0] is not None
+        else None
+    )
 
     individual_scores = dict()
     for metric in metrics:
@@ -1388,6 +1421,7 @@ def evaluate_and_save_predictions(preds, test_loader, metrics, model_output_dir,
         df_preds = pd.DataFrame(list(zip(*namess, *preds.T)), columns=columns)
 
     return df_preds
+
 
 def main(args):
     format_kwargs = dict(
@@ -1489,7 +1523,7 @@ def main(args):
             )
         else:
             test_loader = None
-            
+
         train_model(
             args,
             train_loader,
@@ -1499,6 +1533,7 @@ def main(args):
             output_transform,
             input_transforms,
         )
+
 
 if __name__ == "__main__":
     # TODO: update this old code or remove it.

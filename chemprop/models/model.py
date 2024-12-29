@@ -322,7 +322,16 @@ class MolAtomBondMPNN(pl.LightningModule):
         super().__init__()
         # manually add X_d_transform to hparams to suppress lightning's warning about double saving
         # its state_dict values.
-        self.save_hyperparameters(ignore=["X_d_transform", "message_passing", "agg", "mol_predictor", "atom_predictor", "bond_predictor"])
+        self.save_hyperparameters(
+            ignore=[
+                "X_d_transform",
+                "message_passing",
+                "agg",
+                "mol_predictor",
+                "atom_predictor",
+                "bond_predictor",
+            ]
+        )
         self.hparams["X_d_transform"] = X_d_transform
         self.hparams.update(
             {
@@ -341,8 +350,16 @@ class MolAtomBondMPNN(pl.LightningModule):
 
         self.X_d_transform = X_d_transform if X_d_transform is not None else nn.Identity()
 
-        self.metrics = nn.ModuleList([nn.ModuleList([*metrics, self.criterion[i].clone()]) if metrics 
-                else nn.ModuleList([self.predictors[i]._T_default_metric(), self.criterion[i].clone()]) for i in range(3)])
+        self.metrics = nn.ModuleList(
+            [
+                nn.ModuleList([*metrics, self.criterion[i].clone()])
+                if metrics
+                else nn.ModuleList(
+                    [self.predictors[i]._T_default_metric(), self.criterion[i].clone()]
+                )
+                for i in range(3)
+            ]
+        )
 
         self.warmup_epochs = warmup_epochs
         self.init_lr = init_lr
@@ -351,7 +368,11 @@ class MolAtomBondMPNN(pl.LightningModule):
 
     @property
     def output_dim(self) -> list[int]:
-        return [self.predictors[0].output_dim, self.predictors[1].output_dim, self.predictors[2].output_dim]
+        return [
+            self.predictors[0].output_dim,
+            self.predictors[1].output_dim,
+            self.predictors[2].output_dim,
+        ]
 
     @property
     def n_tasks(self) -> list[int]:
@@ -359,33 +380,58 @@ class MolAtomBondMPNN(pl.LightningModule):
 
     @property
     def n_targets(self) -> list[int]:
-        return [self.predictors[0].n_targets, self.predictors[1].n_targets, self.predictors[2].n_targets]
+        return [
+            self.predictors[0].n_targets,
+            self.predictors[1].n_targets,
+            self.predictors[2].n_targets,
+        ]
 
     @property
     def criterion(self) -> list[ChempropMetric]:
-        return [self.predictors[0].criterion, self.predictors[1].criterion, self.predictors[2].criterion]
+        return [
+            self.predictors[0].criterion,
+            self.predictors[1].criterion,
+            self.predictors[2].criterion,
+        ]
 
     def fingerprint(
-        self, bmg: BatchMolGraph, V_d: Tensor | None = None, E_d: Tensor | None = None, X_d: Tensor | None = None
+        self,
+        bmg: BatchMolGraph,
+        V_d: Tensor | None = None,
+        E_d: Tensor | None = None,
+        X_d: Tensor | None = None,
     ) -> list[Tensor]:
         """the learned fingerprints for the input molecules"""
         H_v, H_b = self.message_passing(bmg, V_d, E_d)
         H_g = self.agg(H_v, bmg.batch)
         H_g = self.bn(H_g)
-        H_g = H_g if X_d is None else torch.cat((H, self.X_d_transform(X_d)), 1)
+        H_g = H_g if X_d is None else torch.cat((H_g, self.X_d_transform(X_d)), 1)
 
         H_b = torch.cat([H_b, H_b[bmg.rev_edge_index]], 1)
         return [H_g, H_v, H_b]
 
     def encoding(
-        self, bmg: BatchMolGraph, V_d: Tensor | None = None, E_d: Tensor | None = None, X_d: Tensor | None = None, i: int = -1
+        self,
+        bmg: BatchMolGraph,
+        V_d: Tensor | None = None,
+        E_d: Tensor | None = None,
+        X_d: Tensor | None = None,
+        i: int = -1,
     ) -> list[Tensor]:
         """Calculate the :attr:`i`-th hidden representation"""
         H = self.fingerprint(bmg, V_d, E_d, X_d)
-        return [self.predictors[0].encode(H[0], i), self.predictors[1].encode(H[1], i), self.predictors[2].encode(H[2], i)]
+        return [
+            self.predictors[0].encode(H[0], i),
+            self.predictors[1].encode(H[1], i),
+            self.predictors[2].encode(H[2], i),
+        ]
 
     def forward(
-        self, bmg: BatchMolGraph, V_d: Tensor | None = None, E_d: Tensor | None = None, X_d: Tensor | None = None
+        self,
+        bmg: BatchMolGraph,
+        V_d: Tensor | None = None,
+        E_d: Tensor | None = None,
+        X_d: Tensor | None = None,
     ) -> list[Tensor]:
         """Generate predictions for the input molecules/reactions"""
         H = self.fingerprint(bmg, V_d, E_d, X_d)
@@ -405,7 +451,7 @@ class MolAtomBondMPNN(pl.LightningModule):
             if batch_index == 2:
                 preds = (preds[::2] + preds[1::2]) / 2
             l = self.criterion[batch_index](preds, targets, mask, weights, lt_mask, gt_mask)
-            total_l += l    
+            total_l += l
 
         return total_l
 
@@ -433,8 +479,13 @@ class MolAtomBondMPNN(pl.LightningModule):
             self.metrics[batch_index][-1](preds, targets, mask, weights, lt_mask, gt_mask)
             agg_metric += self.metrics[batch_index][-1].compute()
             self.metrics[batch_index][-1].reset()
-        
-        self.log("val_loss", agg_metric, batch_size=len(batch[0][0] or batch[1][0] or batch[2][0]), prog_bar=True)
+
+        self.log(
+            "val_loss",
+            agg_metric,
+            batch_size=len(batch[0][0] or batch[1][0] or batch[2][0]),
+            prog_bar=True,
+        )
 
     def test_step(self, batch: list[TrainingBatch], batch_idx: int = 0):
         self._evaluate_batch(batch, "test")
@@ -466,7 +517,9 @@ class MolAtomBondMPNN(pl.LightningModule):
                 m.update(preds, targets, mask, weights, lt_mask, gt_mask)
                 self.log(f"{label}/{m.alias}", m, batch_size=len(batch[batch_index][0]))
 
-    def predict_step(self, batch: list[TrainingBatch], batch_idx: int, dataloader_idx: int = 0) -> list[Tensor]:
+    def predict_step(
+        self, batch: list[TrainingBatch], batch_idx: int, dataloader_idx: int = 0
+    ) -> list[Tensor]:
         """Return the predictions of the input batch
 
         Parameters
@@ -530,7 +583,13 @@ class MolAtomBondMPNN(pl.LightningModule):
 
         submodules |= {
             key: hparams[key].pop("cls")(**hparams[key])
-            for key in ("message_passing", "agg", "mol_predictor", "atom_predictor", "bond_predictor")
+            for key in (
+                "message_passing",
+                "agg",
+                "mol_predictor",
+                "atom_predictor",
+                "bond_predictor",
+            )
             if key not in submodules
         }
 
@@ -565,12 +624,11 @@ class MolAtomBondMPNN(pl.LightningModule):
         return super().load_from_checkpoint(buffer, map_location, hparams_file, strict, **kwargs)
 
     @classmethod
-    def load_from_file(cls, model_path, map_location=None, strict=True, **submodules) -> MolAtomBondMPNN:
+    def load_from_file(
+        cls, model_path, map_location=None, strict=True, **submodules
+    ) -> MolAtomBondMPNN:
         submodules, state_dict, hparams = cls._load(model_path, map_location, **submodules)
         hparams.update(submodules)
-
-        #state_dict = cls._add_metric_task_weights_to_state_dict(state_dict, hparams)
-
         model = cls(**hparams)
         model.load_state_dict(state_dict, strict=strict)
 

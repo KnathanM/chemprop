@@ -16,8 +16,14 @@ from chemprop.cli.common import (
     process_common_args,
     validate_common_args,
 )
-from chemprop.cli.utils import LookupAction, Subcommand, build_data_from_files, build_mixed_data_from_files, make_dataset
-from chemprop.models.utils import load_model, load_mixed_model, load_output_columns
+from chemprop.cli.utils import (
+    LookupAction,
+    Subcommand,
+    build_data_from_files,
+    build_mixed_data_from_files,
+    make_dataset,
+)
+from chemprop.models.utils import load_mixed_model, load_model, load_output_columns
 from chemprop.nn.metrics import LossFunctionRegistry
 from chemprop.nn.predictors import EvidentialFFN, MulticlassClassificationFFN, MveFFN
 from chemprop.uncertainty import (
@@ -218,7 +224,10 @@ def prepare_data_loader(
             **featurization_kwargs,
         )
 
-    dsets = [make_dataset(datas[d], args.rxn_mode, args.multi_hot_atom_featurizer_mode, d) for d in range(len(datas))]
+    dsets = [
+        make_dataset(datas[d], args.rxn_mode, args.multi_hot_atom_featurizer_mode, d)
+        for d in range(len(datas))
+    ]
     dset = dsets[0]
     if multicomponent:
         dset = data.MulticomponentDataset(dsets)
@@ -233,6 +242,7 @@ def make_prediction_for_models(
 ):
     if args.is_mixed:
         models = [load_mixed_model(model_path) for model_path in model_paths]
+        args.uncertainty_method = "mixed_" + args.uncertainty_method
     else:
         models = [load_model(model_path, multicomponent) for model_path in model_paths]
     output_columns, mixed_columns = load_output_columns(model_paths[0])
@@ -259,13 +269,11 @@ def make_prediction_for_models(
         cal_loader = prepare_data_loader(args, multicomponent, True, format_kwargs)
         logger.info(f"calibration size: {len(cal_loader.dataset)}")
 
-    if args.is_mixed:
-        args.uncertainty_method = "mixed_" + args.uncertainty_method
     uncertainty_estimator = Factory.build(
         UncertaintyEstimatorRegistry[args.uncertainty_method],
         ensemble_size=args.dropout_sampling_size,
         dropout=args.uncertainty_dropout_p,
-    ) # make is_mixed one if args.is_mixed is true. 
+    )  # make is_mixed one if args.is_mixed is true.
 
     trainer = pl.Trainer(
         logger=False, enable_progress_bar=True, accelerator=args.accelerator, devices=args.devices
@@ -279,7 +287,6 @@ def make_prediction_for_models(
     test_preds = []
     test_uncs = []
     for idx, individual_pred in enumerate(test_individual_preds):
-        print(individual_pred)
         test_preds.append(torch.mean(individual_pred, dim=0))
 
         if not isinstance(uncertainty_estimator, NoUncertaintyEstimator):
@@ -313,7 +320,9 @@ def make_prediction_for_models(
                 print(args.uncertainty_method)
                 test_uncs[idx] = uncertainty_calibrator.apply(test_uncs[idx])
                 for i in range(test_individual_uncs[idx].shape[0]):
-                    test_individual_uncs[idx][i] = uncertainty_calibrator.apply(test_individual_uncs[idx][i])
+                    test_individual_uncs[idx][i] = uncertainty_calibrator.apply(
+                        test_individual_uncs[idx][i]
+                    )
 
         if args.evaluation_methods is not None:
             uncertainty_evaluators = [
@@ -327,16 +336,23 @@ def make_prediction_for_models(
                 test_targets = np.nan_to_num(test_targets, nan=0.0)
                 test_targets = torch.from_numpy(test_targets)
                 if isinstance(evaluator, RegressionEvaluator):
-                    metric_value = evaluator.evaluate(test_preds[idx], test_uncs[idx], test_targets, test_mask)
+                    metric_value = evaluator.evaluate(
+                        test_preds[idx], test_uncs[idx], test_targets, test_mask
+                    )
                 else:
                     metric_value = evaluator.evaluate(test_uncs[idx], test_targets, test_mask)
                 logger.info(f"{evaluator.alias}: {metric_value.tolist()}")
 
         if args.uncertainty_method == "none":
-            if args.is_mixed and (isinstance(models[0].predictors[0], MveFFN) or isinstance(models[0].predictors[0], EvidentialFFN)):
+            if args.is_mixed and (
+                isinstance(models[0].predictors[0], MveFFN)
+                or isinstance(models[0].predictors[0], EvidentialFFN)
+            ):
                 test_preds[idx] = test_preds[idx][..., 0]
                 test_individual_preds[idx] = test_individual_preds[idx][..., 0]
-            elif isinstance(models[0].predictor, MveFFN) or isinstance(models[0].predictor, EvidentialFFN):
+            elif isinstance(models[0].predictor, MveFFN) or isinstance(
+                models[0].predictor, EvidentialFFN
+            ):
                 test_preds[idx] = test_preds[idx][..., 0]
                 test_individual_preds[idx] = test_individual_preds[idx][..., 0]
 
@@ -346,11 +362,19 @@ def make_prediction_for_models(
                 f"pred_{i}" for i in range(test_preds[idx].shape[1])
             ]  # TODO: need to improve this for cases like multi-task MVE and multi-task multiclass
 
-    if not args.is_mixed:
-        test_preds = test_preds[0] if test_preds is not None else None
-        test_uncs = test_uncs[0] if test_uncs is not None else None
-        
-    save_predictions(args, models[0], output_columns, mixed_columns, test_preds, test_uncs, output_path, test_loader)
+    test_preds = test_preds[0] if not args.is_mixed and test_preds is not None else test_preds
+    test_uncs = test_uncs[0] if not args.is_mixed and test_uncs is not None else test_uncs
+
+    save_predictions(
+        args,
+        models[0],
+        output_columns,
+        mixed_columns,
+        test_preds,
+        test_uncs,
+        output_path,
+        test_loader,
+    )
 
     if len(model_paths) > 1:
         save_individual_predictions(
@@ -366,10 +390,14 @@ def make_prediction_for_models(
         )
 
 
-def save_predictions(args, model, output_columns, mixed_columns, test_preds, test_uncs, output_path, test_loader):
+def save_predictions(
+    args, model, output_columns, mixed_columns, test_preds, test_uncs, output_path, test_loader
+):
     unc_columns = [f"{col}_unc" for col in output_columns]
 
-    if (args.is_mixed and isinstance(model.predictors[0], MulticlassClassificationFFN)) or isinstance(model.predictor, MulticlassClassificationFFN):
+    if (
+        args.is_mixed and isinstance(model.predictors[0], MulticlassClassificationFFN)
+    ) or isinstance(model.predictor, MulticlassClassificationFFN):
         output_columns = output_columns + [f"{col}_prob" for col in output_columns]
         predicted_class_labels = test_preds.argmax(axis=-1)
         formatted_probability_strings = np.apply_along_axis(
@@ -396,14 +424,18 @@ def save_predictions(args, model, output_columns, mixed_columns, test_preds, tes
                 first_atom = atom_slices.index(i)
                 last_atom = first_atom + atom_slices.count(i)
                 atom_preds = test_preds[1][first_atom:last_atom]
-                df_test.loc[i, atom_cols] = [str(atom_preds[:,j].tolist()) for j in range(len(atom_cols))]
+                df_test.loc[i, atom_cols] = [
+                    str(atom_preds[:, j].tolist()) for j in range(len(atom_cols))
+                ]
 
             bond_slices = test_loader.dataset.bond_dataset._slices
             if bond_slices is not None:
                 first_bond = bond_slices.index(i)
                 last_bond = first_bond + bond_slices.count(i)
                 bond_preds = test_preds[2][first_bond:last_bond]
-                df_test.loc[i, bond_cols] = [str(bond_preds[:,j].tolist()) for j in range(len(bond_cols))]
+                df_test.loc[i, bond_cols] = [
+                    str(bond_preds[:, j].tolist()) for j in range(len(bond_cols))
+                ]
     else:
         df_test[output_columns] = test_preds[0]
 
@@ -433,7 +465,9 @@ def save_individual_predictions(
         f"{col}_unc_model_{i}" for i in range(len(model_paths)) for col in output_columns
     ]
 
-    if (args.is_mixed and isinstance(model.predictors[0], MulticlassClassificationFFN)) or isinstance(model.predictor, MulticlassClassificationFFN):
+    if (
+        args.is_mixed and isinstance(model.predictors[0], MulticlassClassificationFFN)
+    ) or isinstance(model.predictor, MulticlassClassificationFFN):
         output_columns = [
             item
             for i in range(len(model_paths))
@@ -445,16 +479,18 @@ def save_individual_predictions(
         formatted_probability_strings = np.apply_along_axis(
             lambda x: ",".join(map(str, x)), 3, test_individual_preds[0]
         )
-        test_individual_preds = [np.concatenate(
-            (predicted_class_labels, formatted_probability_strings), axis=-1
-        )]
+        test_individual_preds = [
+            np.concatenate((predicted_class_labels, formatted_probability_strings), axis=-1)
+        ]
     else:
         output_columns = [
             f"{col}_model_{i}" for i in range(len(model_paths)) for col in output_columns
         ]
 
     m, n, t = test_individual_preds[0].shape
-    test_individual_preds[0] = np.transpose(test_individual_preds[0], (1, 0, 2)).reshape(n, m * t) #TODO: edit for atoms/bonds
+    test_individual_preds[0] = np.transpose(test_individual_preds[0], (1, 0, 2)).reshape(
+        n, m * t
+    )  # TODO: edit for atoms/bonds
     df_test = pd.read_csv(
         args.test_path, header=None if args.no_header_row else "infer", index_col=False
     )
@@ -472,14 +508,18 @@ def save_individual_predictions(
                 first_atom = atom_slices.index(i)
                 last_atom = first_atom + atom_slices.count(i)
                 atom_preds = test_individual_preds[1][first_atom:last_atom]
-                df_test.loc[i, atom_cols] = [str(atom_preds[:,j].tolist()) for j in range(len(atom_cols))]
+                df_test.loc[i, atom_cols] = [
+                    str(atom_preds[:, j].tolist()) for j in range(len(atom_cols))
+                ]
 
             bond_slices = test_loader.dataset.bond_dataset._slices
             if bond_slices is not None:
                 first_bond = bond_slices.index(i)
                 last_bond = first_bond + bond_slices.count(i)
                 bond_preds = test_individual_preds[2][first_bond:last_bond]
-                df_test.loc[i, bond_cols] = [str(bond_preds[:,j].tolist()) for j in range(len(bond_cols))]
+                df_test.loc[i, bond_cols] = [
+                    str(bond_preds[:, j].tolist()) for j in range(len(bond_cols))
+                ]
     else:
         df_test[output_columns] = test_individual_preds[0]
 

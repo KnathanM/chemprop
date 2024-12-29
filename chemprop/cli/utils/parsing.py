@@ -74,6 +74,7 @@ def parse_csv(
 
     return smiss, rxnss, Y, weights, lt_mask, gt_mask
 
+
 def mixed_parse_csv(
     path: PathLike,
     smiles_cols: Sequence[str] | None,
@@ -127,7 +128,9 @@ def mixed_parse_csv(
                 index += 1
                 column_mol = make_mol(df.iloc[index][input_cols[0]], False, False)
             column_type = ast.literal_eval(df.iloc[index][column])
-            flag.append("atom") if len(column_type) == column_mol.GetNumAtoms() else flag.append("bond")
+            flag.append("atom") if len(column_type) == column_mol.GetNumAtoms() else flag.append(
+                "bond"
+            )
 
     mol_list = []
     for i in range(len(flag)):
@@ -143,7 +146,9 @@ def mixed_parse_csv(
                 continue
             np_prop = np.array(ast.literal_eval(df.iloc[molecule][target_cols[prop]]))
             np_prop = np.expand_dims(np_prop, axis=1)
-            atom_list_props.append(np_prop) if flag[prop] == "atom" else bond_list_props.append(np_prop)
+            atom_list_props.append(np_prop) if flag[prop] == "atom" else bond_list_props.append(
+                np_prop
+            )
         if len(atom_list_props) > 0:
             atom_Y.append(np.hstack(atom_list_props))
         else:
@@ -167,8 +172,12 @@ def mixed_parse_csv(
         atom_dim = atom_Y[0].shape[1]
         atom_lt_mask, atom_gt_mask = np.empty((0, atom_dim)), np.empty((0, atom_dim))
         for i in range(len(atom_Y)):
-            atom_lt_mask = np.vstack([atom_lt_mask, atom_Y[i].applymap(lambda x: "<" in x).to_numpy()])
-            atom_gt_mask = np.vstack([atom_gt_mask, atom_Y[i].applymap(lambda x: ">" in x).to_numpy()])
+            atom_lt_mask = np.vstack(
+                [atom_lt_mask, atom_Y[i].applymap(lambda x: "<" in x).to_numpy()]
+            )
+            atom_gt_mask = np.vstack(
+                [atom_gt_mask, atom_Y[i].applymap(lambda x: ">" in x).to_numpy()]
+            )
             atom_Y[i] = atom_Y[i].applymap(lambda x: x.strip("<").strip(">")).to_numpy(np.single)
         lt_mask.append(atom_lt_mask)
         gt_mask.append(atom_gt_mask)
@@ -176,8 +185,12 @@ def mixed_parse_csv(
         bond_dim = bond_Y[0].shape[1]
         bond_lt_mask, bond_gt_mask = np.empty((0, bond_dim)), np.empty((0, bond_dim))
         for i in range(len(bond_Y)):
-            bond_lt_mask = np.vstack([bond_lt_mask, bond_Y[i].applymap(lambda x: "<" in x).to_numpy()])
-            bond_gt_mask = np.vstack([bond_gt_mask, bond_Y[i].applymap(lambda x: ">" in x).to_numpy()])
+            bond_lt_mask = np.vstack(
+                [bond_lt_mask, bond_Y[i].applymap(lambda x: "<" in x).to_numpy()]
+            )
+            bond_gt_mask = np.vstack(
+                [bond_gt_mask, bond_Y[i].applymap(lambda x: ">" in x).to_numpy()]
+            )
             bond_Y[i] = bond_Y[i].applymap(lambda x: x.strip("<").strip(">")).to_numpy(np.single)
         lt_mask.append(bond_lt_mask)
         gt_mask.append(bond_gt_mask)
@@ -187,6 +200,7 @@ def mixed_parse_csv(
         gt_mask = None
 
     return smiss, rxnss, mol_Y, atom_Y, bond_Y, weights, lt_mask, gt_mask, flag
+
 
 def get_column_names(
     path: PathLike,
@@ -482,6 +496,7 @@ def build_data_from_files(
 
     return mol_data + mol_rxn_data
 
+
 def build_mixed_data_from_files(
     p_data: PathLike,
     no_header_row: bool,
@@ -646,7 +661,6 @@ def make_dataset(
     )
 
     return ReactionDataset(data, featurizer)
-
 
 
 def parse_indices(idxs):

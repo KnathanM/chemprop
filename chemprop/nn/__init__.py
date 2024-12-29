@@ -9,10 +9,10 @@ from .agg import (
 )
 from .message_passing import (
     AtomMessagePassing,
-    MixedAtomMessagePassing,
     BondMessagePassing,
-    MixedBondMessagePassing,
     MessagePassing,
+    MixedAtomMessagePassing,
+    MixedBondMessagePassing,
     MulticomponentMessagePassing,
 )
 from .metrics import (
