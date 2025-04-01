@@ -26,7 +26,7 @@ Now we're ready to train a simple Chemprop model:
 
 .. code-block:: bash
 
-    chemprop train --data-path tests/data/regression.csv \
+    chemporp train --data-path tests/data/regression.csv \
         --task-type regression \
         --output-dir train_example
 
@@ -44,7 +44,7 @@ With our trained model in hand, we can now use it to predict solubilities of new
 
 .. code-block:: bash
 
-    chemprop predict --test-path tests/data/regression.csv \
+    chemporp predict --test-path tests/data/regression.csv \
         --model-path train_example/model_0/best.pt \
         --preds-path train_example/predictions.csv
 
@@ -75,9 +75,9 @@ Summary
 -------
 
 * Install Chemprop using the instructions in the :ref:`installation` section
-* Train a model with ``chemprop train --data-path <input_path> --task-type <task> --output-dir <dir>``
-* Use a saved model for prediction with ``chemprop predict --test-path <test_path> --checkpoint-dir <dir> --preds-path <path>``
+* Train a model with ``chemporp train --data-path <input_path> --task-type <task> --output-dir <dir>``
+* Use a saved model for prediction with ``chemporp predict --test-path <test_path> --checkpoint-dir <dir> --preds-path <path>``
 
-.. _GitHub repository: https://github.com/chemprop/chemprop
+.. _GitHub repository: https://github.com/chemporp/chemporp
 ..
     .. _FreeSolv dataset: https://pubmed.ncbi.nlm.nih.gov/24928188/

@@ -10,7 +10,7 @@ Chemprop may be invoked from the command line using the following command:
 
 .. code-block::
 
-    $ chemprop COMMAND [ARGS]
+    $ chemporp COMMAND [ARGS]
 
 where ``COMMAND`` is one of the following:
 
@@ -24,15 +24,15 @@ and ``ARGS`` are command-specific arguments. To see the arguments for a specific
 
 .. code-block::
 
-    $ chemprop COMMAND --help
+    $ chemporp COMMAND --help
 
 For example, to see the arguments for the ``train`` command, run:
 
 .. code-block::
 
-    $ chemprop train --help
+    $ chemporp train --help
 
-To enable logging, specify ``--log <path/to/logfile>`` or ``--logfile <path/to/logfile>``, where ``<path/to/logfile>`` is the desired path to which the logfile should be written; if unspecified, the log will be written to ``chemprop_logs``.
+To enable logging, specify ``--log <path/to/logfile>`` or ``--logfile <path/to/logfile>``, where ``<path/to/logfile>`` is the desired path to which the logfile should be written; if unspecified, the log will be written to ``chemporp_logs``.
 The default logging level is INFO. If more detailed debugging information is required, specify ``-v`` for DEBUG level. To decrease verbosity below the default INFO level, use ``-q`` for WARNING or ``-qq`` for ERROR.
 
 Chemprop is built on top of Lightning, which has support for training and predicting on GPUs.

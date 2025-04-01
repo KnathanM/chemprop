@@ -1,21 +1,21 @@
-![ChemProp Logo](docs/source/_static/images/logo/chemprop_logo.svg)
+![ChemProp Logo](docs/source/_static/images/logo/chemporp_logo.svg)
 # Chemprop
 
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/chemprop)](https://badge.fury.io/py/chemprop)
-[![PyPI version](https://badge.fury.io/py/chemprop.svg)](https://badge.fury.io/py/chemprop)
-[![Anaconda-Server Badge](https://anaconda.org/conda-forge/chemprop/badges/version.svg)](https://anaconda.org/conda-forge/chemprop)
-[![Build Status](https://github.com/chemprop/chemprop/workflows/tests/badge.svg)](https://github.com/chemprop/chemprop/actions/workflows/tests.yml)
-[![Documentation Status](https://readthedocs.org/projects/chemprop/badge/?version=main)](https://chemprop.readthedocs.io/en/main/?badge=main)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/chemporp)](https://badge.fury.io/py/chemporp)
+[![PyPI version](https://badge.fury.io/py/chemporp.svg)](https://badge.fury.io/py/chemporp)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/chemporp/badges/version.svg)](https://anaconda.org/conda-forge/chemporp)
+[![Build Status](https://github.com/chemporp/chemporp/workflows/tests/badge.svg)](https://github.com/chemporp/chemporp/actions/workflows/tests.yml)
+[![Documentation Status](https://readthedocs.org/projects/chemporp/badge/?version=main)](https://chemporp.readthedocs.io/en/main/?badge=main)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Downloads](https://static.pepy.tech/badge/chemprop)](https://pepy.tech/project/chemprop)
-[![Downloads](https://static.pepy.tech/badge/chemprop/month)](https://pepy.tech/project/chemprop)
-[![Downloads](https://static.pepy.tech/badge/chemprop/week)](https://pepy.tech/project/chemprop)
+[![Downloads](https://static.pepy.tech/badge/chemporp)](https://pepy.tech/project/chemporp)
+[![Downloads](https://static.pepy.tech/badge/chemporp/month)](https://pepy.tech/project/chemporp)
+[![Downloads](https://static.pepy.tech/badge/chemporp/week)](https://pepy.tech/project/chemporp)
 
 Chemprop is a repository containing message passing neural networks for molecular property prediction.
 
-Documentation can be found [here](https://chemprop.readthedocs.io/en/main/).
+Documentation can be found [here](https://chemporp.readthedocs.io/en/main/).
 
-There are tutorial notebooks in the [`examples/`](https://github.com/chemprop/chemprop/tree/main/examples) directory.
+There are tutorial notebooks in the [`examples/`](https://github.com/chemporp/chemporp/tree/main/examples) directory.
 
 Chemprop recently underwent a ground-up rewrite and new major release (v2.0.0). A helpful transition guide from Chemprop v1 to v2 can be found [here](https://docs.google.com/spreadsheets/u/3/d/e/2PACX-1vRshySIknVBBsTs5P18jL4WeqisxDAnDE5VRnzxqYEhYrMe4GLS17w5KeKPw9sged6TmmPZ4eEZSTIy/pubhtml). This includes a side-by-side comparison of CLI argument options, a list of which arguments will be implemented in later versions of v2, and a list of changes to default hyperparameters.
 
@@ -41,19 +41,19 @@ For users who have not yet made the switch to Chemprop v2.0, please reference th
 
 ### v1 Documentation
 
-- Documentation of Chemprop v1 is available [here](https://chemprop.readthedocs.io/en/v1.7.1/). Note that the content of this site is several versions behind the final v1 release (v1.7.1) and does not cover the full scope of features available in chemprop v1.
-- The v1 [README](https://github.com/chemprop/chemprop/blob/v1.7.1/README.md) is the best source for documentation on more recently-added features.
-- Please also see descriptions of all the possible command line arguments in the v1 [`args.py`](https://github.com/chemprop/chemprop/blob/v1.7.1/chemprop/args.py) file.
+- Documentation of Chemprop v1 is available [here](https://chemporp.readthedocs.io/en/v1.7.1/). Note that the content of this site is several versions behind the final v1 release (v1.7.1) and does not cover the full scope of features available in chemporp v1.
+- The v1 [README](https://github.com/chemporp/chemporp/blob/v1.7.1/README.md) is the best source for documentation on more recently-added features.
+- Please also see descriptions of all the possible command line arguments in the v1 [`args.py`](https://github.com/chemporp/chemporp/blob/v1.7.1/chemporp/args.py) file.
 
 ### v1 Tutorials and Examples
 
-- [Benchmark scripts](https://github.com/chemprop/chemprop_benchmark) - scripts from our 2023 paper, providing examples of many features using Chemprop v1.6.1
-- [ACS Fall 2023 Workshop](https://github.com/chemprop/chemprop-workshop-acs-fall2023) - presentation, interactive demo, exercises on Google Colab with solution key
-- [Google Colab notebook](https://colab.research.google.com/github/chemprop/chemprop/blob/v1.7.1/colab_demo.ipynb) - several examples, intended to be run in Google Colab rather than as a Jupyter notebook on your local machine
-- [nanoHUB tool](https://nanohub.org/resources/chempropdemo/) - a notebook of examples similar to the Colab notebook above, doesn't require any installation
+- [Benchmark scripts](https://github.com/chemporp/chemporp_benchmark) - scripts from our 2023 paper, providing examples of many features using Chemprop v1.6.1
+- [ACS Fall 2023 Workshop](https://github.com/chemporp/chemporp-workshop-acs-fall2023) - presentation, interactive demo, exercises on Google Colab with solution key
+- [Google Colab notebook](https://colab.research.google.com/github/chemporp/chemporp/blob/v1.7.1/colab_demo.ipynb) - several examples, intended to be run in Google Colab rather than as a Jupyter notebook on your local machine
+- [nanoHUB tool](https://nanohub.org/resources/chemporpdemo/) - a notebook of examples similar to the Colab notebook above, doesn't require any installation
   - [YouTube video](https://www.youtube.com/watch?v=TeOl5E8Wo2M) - lecture accompanying nanoHUB tool
 - These [slides](https://docs.google.com/presentation/d/14pbd9LTXzfPSJHyXYkfLxnK8Q80LhVnjImg8a3WqCRM/edit?usp=sharing) provide a Chemprop tutorial and highlight additions as of April 28th, 2020
 
 ### v1 Known Issues
 
-We have discontinued support for v1 since v2 has been released, but we still appreciate v1 bug reports and will tag them as [`v1-wontfix`](https://github.com/chemprop/chemprop/issues?q=label%3Av1-wontfix+) so the community can find them easily.
+We have discontinued support for v1 since v2 has been released, but we still appreciate v1 bug reports and will tag them as [`v1-wontfix`](https://github.com/chemporp/chemporp/issues?q=label%3Av1-wontfix+) so the community can find them easily.

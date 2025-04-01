@@ -4,9 +4,9 @@ import numpy as np
 from rdkit import Chem
 from rdkit.Chem import Mol
 
-from chemprop.data.molgraph import MolGraph
-from chemprop.featurizers.base import GraphFeaturizer
-from chemprop.featurizers.molgraph.mixins import _MolGraphFeaturizerMixin
+from chemporp.data.molgraph import MolGraph
+from chemporp.featurizers.base import GraphFeaturizer
+from chemporp.featurizers.molgraph.mixins import _MolGraphFeaturizerMixin
 
 
 @dataclass

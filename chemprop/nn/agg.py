@@ -3,8 +3,8 @@ from abc import abstractmethod
 import torch
 from torch import Tensor, nn
 
-from chemprop.nn.hparams import HasHParams
-from chemprop.utils import ClassRegistry
+from chemporp.nn.hparams import HasHParams
+from chemporp.utils import ClassRegistry
 
 __all__ = [
     "Aggregation",
@@ -25,9 +25,9 @@ class Aggregation(nn.Module, HasHParams):
 
     See also
     --------
-    :class:`~chemprop.v2.models.modules.agg.MeanAggregation`
-    :class:`~chemprop.v2.models.modules.agg.SumAggregation`
-    :class:`~chemprop.v2.models.modules.agg.NormAggregation`
+    :class:`~chemporp.v2.models.modules.agg.MeanAggregation`
+    :class:`~chemporp.v2.models.modules.agg.SumAggregation`
+    :class:`~chemporp.v2.models.modules.agg.NormAggregation`
     """
 
     def __init__(self, dim: int = 0, *args, **kwargs):

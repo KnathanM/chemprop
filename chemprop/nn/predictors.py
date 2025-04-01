@@ -5,10 +5,10 @@ import torch
 from torch import Tensor, nn
 from torch.nn import functional as F
 
-from chemprop.conf import DEFAULT_HIDDEN_DIM
-from chemprop.nn.ffn import MLP
-from chemprop.nn.hparams import HasHParams
-from chemprop.nn.metrics import (
+from chemporp.conf import DEFAULT_HIDDEN_DIM
+from chemporp.nn.ffn import MLP
+from chemporp.nn.hparams import HasHParams
+from chemporp.nn.metrics import (
     MSE,
     SID,
     BCELoss,
@@ -21,8 +21,8 @@ from chemprop.nn.metrics import (
     MVELoss,
     QuantileLoss,
 )
-from chemprop.nn.transforms import UnscaleTransform
-from chemprop.utils import ClassRegistry, Factory
+from chemporp.nn.transforms import UnscaleTransform
+from chemporp.utils import ClassRegistry, Factory
 
 __all__ = [
     "Predictor",

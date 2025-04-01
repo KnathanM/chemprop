@@ -170,7 +170,7 @@ cython_debug/
 *.yaml
 *.tfevents.*
 *.ckpt
-chemprop/_version.py
+chemporp/_version.py
 *.ckpt
 *.ipynb
 config.toml

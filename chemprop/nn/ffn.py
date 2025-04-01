@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 from torch import Tensor, nn
 
-from chemprop.nn.utils import get_activation_function
+from chemporp.nn.utils import get_activation_function
 
 
 class FFN(nn.Module):

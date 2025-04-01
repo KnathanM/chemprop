@@ -7,15 +7,15 @@ import torch
 from torch.nn import Identity
 from torch.utils.data import DataLoader
 
-from chemprop.data import (
+from chemporp.data import (
     MoleculeDatapoint,
     MoleculeDataset,
     MulticomponentDataset,
     collate_multicomponent,
 )
-from chemprop.models import MulticomponentMPNN
-from chemprop.models.utils import load_model, save_model
-from chemprop.nn import (
+from chemporp.models import MulticomponentMPNN
+from chemporp.models.utils import load_model, save_model
+from chemporp.nn import (
     MSE,
     BondMessagePassing,
     GraphTransform,

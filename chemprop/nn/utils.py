@@ -2,7 +2,7 @@ from enum import auto
 
 from torch import nn
 
-from chemprop.utils.utils import EnumMapping
+from chemporp.utils.utils import EnumMapping
 
 
 class Activation(EnumMapping):
@@ -17,7 +17,7 @@ class Activation(EnumMapping):
 def get_activation_function(activation: str | Activation) -> nn.Module:
     """Gets an activation function module given the name of the activation.
 
-    See :class:`~chemprop.v2.models.utils.Activation` for available activations.
+    See :class:`~chemporp.v2.models.utils.Activation` for available activations.
 
     Parameters
     ----------

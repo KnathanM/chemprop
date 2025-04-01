@@ -10,8 +10,8 @@ from lightning.pytorch.callbacks import EarlyStopping
 import numpy as np
 import torch
 
-from chemprop.cli.common import add_common_args, process_common_args, validate_common_args
-from chemprop.cli.train import (
+from chemporp.cli.common import add_common_args, process_common_args, validate_common_args
+from chemporp.cli.train import (
     TrainSubcommand,
     add_train_args,
     build_datasets,
@@ -22,11 +22,11 @@ from chemprop.cli.train import (
     save_config,
     validate_train_args,
 )
-from chemprop.cli.utils.command import Subcommand
-from chemprop.data import build_dataloader
-from chemprop.nn import AggregationRegistry, MetricRegistry
-from chemprop.nn.transforms import UnscaleTransform
-from chemprop.nn.utils import Activation
+from chemporp.cli.utils.command import Subcommand
+from chemporp.data import build_dataloader
+from chemporp.nn import AggregationRegistry, MetricRegistry
+from chemporp.nn.transforms import UnscaleTransform
+from chemporp.nn.utils import Activation
 
 NO_RAY = False
 DEFAULT_SEARCH_SPACE = {
@@ -244,7 +244,7 @@ def add_hpopt_args(parser: ArgumentParser) -> ArgumentParser:
 
 def process_hpopt_args(args: Namespace) -> Namespace:
     if args.hpopt_save_dir is None:
-        args.hpopt_save_dir = Path(f"chemprop_hpopt/{args.data_path.stem}")
+        args.hpopt_save_dir = Path(f"chemporp_hpopt/{args.data_path.stem}")
 
     args.hpopt_save_dir.mkdir(exist_ok=True, parents=True)
 
@@ -401,7 +401,7 @@ def tune_model(
         case "hyperopt":
             if NO_HYPEROPT:
                 raise ImportError(
-                    "HyperOptSearch requires hyperopt to be installed. Use 'pip install -U hyperopt' to install or use 'pip install -e .[hpopt]' in chemprop folder if you installed from source to install all hpopt relevant packages."
+                    "HyperOptSearch requires hyperopt to be installed. Use 'pip install -U hyperopt' to install or use 'pip install -e .[hpopt]' in chemporp folder if you installed from source to install all hpopt relevant packages."
                 )
 
             search_alg = HyperOptSearch(
@@ -411,7 +411,7 @@ def tune_model(
         case "optuna":
             if NO_OPTUNA:
                 raise ImportError(
-                    "OptunaSearch requires optuna to be installed. Use 'pip install -U optuna' to install or use 'pip install -e .[hpopt]' in chemprop folder if you installed from source to install all hpopt relevant packages."
+                    "OptunaSearch requires optuna to be installed. Use 'pip install -U optuna' to install or use 'pip install -e .[hpopt]' in chemporp folder if you installed from source to install all hpopt relevant packages."
                 )
 
             search_alg = OptunaSearch()

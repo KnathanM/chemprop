@@ -5,9 +5,9 @@ import pytest
 from rdkit import Chem
 from sklearn.preprocessing import StandardScaler
 
-from chemprop.data.datasets import MoleculeDatapoint, MoleculeDataset
-from chemprop.data.molgraph import MolGraph
-from chemprop.featurizers.molgraph import SimpleMoleculeMolGraphFeaturizer
+from chemporp.data.datasets import MoleculeDatapoint, MoleculeDataset
+from chemporp.data.molgraph import MolGraph
+from chemporp.featurizers.molgraph import SimpleMoleculeMolGraphFeaturizer
 
 
 @pytest.fixture(params=[1, 5, 10])

@@ -4,8 +4,8 @@ from typing import Sequence
 import numpy as np
 from rdkit.Chem.rdchem import Atom, HybridizationType
 
-from chemprop.featurizers.base import VectorFeaturizer
-from chemprop.utils.utils import EnumMapping
+from chemporp.featurizers.base import VectorFeaturizer
+from chemporp.utils.utils import EnumMapping
 
 
 class MultiHotAtomFeaturizer(VectorFeaturizer[Atom]):

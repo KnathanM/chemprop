@@ -4,13 +4,13 @@ import sys
 
 from configargparse import ArgumentParser
 
-from chemprop.cli.conf import LOG_DIR, LOG_LEVELS, NOW
-from chemprop.cli.convert import ConvertSubcommand
-from chemprop.cli.fingerprint import FingerprintSubcommand
-from chemprop.cli.hpopt import HpoptSubcommand
-from chemprop.cli.predict import PredictSubcommand
-from chemprop.cli.train import TrainSubcommand
-from chemprop.cli.utils import pop_attr
+from chemporp.cli.conf import LOG_DIR, LOG_LEVELS, NOW
+from chemporp.cli.convert import ConvertSubcommand
+from chemporp.cli.fingerprint import FingerprintSubcommand
+from chemporp.cli.hpopt import HpoptSubcommand
+from chemporp.cli.predict import PredictSubcommand
+from chemporp.cli.train import TrainSubcommand
+from chemporp.cli.utils import pop_attr
 
 logger = logging.getLogger(__name__)
 

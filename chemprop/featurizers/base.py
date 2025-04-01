@@ -4,7 +4,7 @@ from typing import Generic, TypeVar
 
 import numpy as np
 
-from chemprop.data.molgraph import MolGraph
+from chemporp.data.molgraph import MolGraph
 
 S = TypeVar("S")
 T = TypeVar("T")

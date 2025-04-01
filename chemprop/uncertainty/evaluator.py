@@ -5,7 +5,7 @@ import torch
 from torch import Tensor
 from torchmetrics.regression import SpearmanCorrCoef
 
-from chemprop.utils.registry import ClassRegistry
+from chemporp.utils.registry import ClassRegistry
 
 UncertaintyEvaluatorRegistry = ClassRegistry()
 

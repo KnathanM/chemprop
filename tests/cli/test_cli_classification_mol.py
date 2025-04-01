@@ -3,8 +3,8 @@
 
 import pytest
 
-from chemprop.cli.main import main
-from chemprop.models.model import MPNN
+from chemporp.cli.main import main
+from chemporp.models.model import MPNN
 
 pytestmark = pytest.mark.CLI
 
@@ -26,7 +26,7 @@ def dirichlet_model_path(data_dir):
 
 def test_train_quick(monkeypatch, data_path):
     base_args = [
-        "chemprop",
+        "chemporp",
         "train",
         "-i",
         data_path,
@@ -57,7 +57,7 @@ def test_train_quick(monkeypatch, data_path):
 
 
 def test_predict_quick(monkeypatch, data_path, model_path):
-    args = ["chemprop", "predict", "-i", data_path, "--model-path", model_path]
+    args = ["chemporp", "predict", "-i", data_path, "--model-path", model_path]
 
     with monkeypatch.context() as m:
         m.setattr("sys.argv", args)
@@ -66,7 +66,7 @@ def test_predict_quick(monkeypatch, data_path, model_path):
 
 def test_predict_dirichlet_quick(monkeypatch, data_path, dirichlet_model_path):
     args = [
-        "chemprop",
+        "chemporp",
         "predict",
         "-i",
         data_path,
@@ -84,7 +84,7 @@ def test_predict_dirichlet_quick(monkeypatch, data_path, dirichlet_model_path):
 @pytest.mark.parametrize("calibration_method", ["platt", "isotonic"])
 def test_predict_unc_quick(monkeypatch, data_path, model_path, calibration_method):
     args = [
-        "chemprop",
+        "chemporp",
         "predict",
         "-i",
         data_path,
@@ -108,7 +108,7 @@ def test_predict_unc_quick(monkeypatch, data_path, model_path, calibration_metho
 @pytest.mark.parametrize("ffn_block_index", ["0", "1"])
 def test_fingerprint_quick(monkeypatch, data_path, model_path, ffn_block_index):
     args = [
-        "chemprop",
+        "chemporp",
         "fingerprint",
         "-i",
         data_path,
@@ -125,7 +125,7 @@ def test_fingerprint_quick(monkeypatch, data_path, model_path, ffn_block_index):
 
 def test_train_output_structure(monkeypatch, data_path, tmp_path):
     args = [
-        "chemprop",
+        "chemporp",
         "train",
         "-i",
         data_path,
@@ -152,7 +152,7 @@ def test_train_output_structure(monkeypatch, data_path, tmp_path):
 
 def test_train_output_structure_replicate_ensemble(monkeypatch, data_path, tmp_path):
     args = [
-        "chemprop",
+        "chemporp",
         "train",
         "-i",
         data_path,
@@ -185,7 +185,7 @@ def test_train_output_structure_replicate_ensemble(monkeypatch, data_path, tmp_p
 
 def test_predict_output_structure(monkeypatch, data_path, model_path, tmp_path):
     args = [
-        "chemprop",
+        "chemporp",
         "predict",
         "-i",
         data_path,
@@ -209,7 +209,7 @@ def test_fingerprint_output_structure(
     monkeypatch, data_path, model_path, tmp_path, ffn_block_index
 ):
     args = [
-        "chemprop",
+        "chemporp",
         "fingerprint",
         "-i",
         data_path,
@@ -230,7 +230,7 @@ def test_fingerprint_output_structure(
 
 def test_train_outputs(monkeypatch, data_path, tmp_path):
     args = [
-        "chemprop",
+        "chemporp",
         "train",
         "-i",
         data_path,
@@ -256,7 +256,7 @@ def test_train_outputs(monkeypatch, data_path, tmp_path):
 
 def test_class_balance(monkeypatch, data_path, tmp_path):
     args = [
-        "chemprop",
+        "chemporp",
         "train",
         "-i",
         data_path,

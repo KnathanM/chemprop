@@ -2,9 +2,9 @@ from argparse import ArgumentError, ArgumentParser, Namespace
 import logging
 from pathlib import Path
 
-from chemprop.cli.utils import LookupAction
-from chemprop.cli.utils.args import uppercase
-from chemprop.featurizers import AtomFeatureMode, MoleculeFeaturizerRegistry, RxnMode
+from chemporp.cli.utils import LookupAction
+from chemporp.cli.utils.args import uppercase
+from chemporp.featurizers import AtomFeatureMode, MoleculeFeaturizerRegistry, RxnMode
 
 logger = logging.getLogger(__name__)
 

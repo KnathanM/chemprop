@@ -11,7 +11,7 @@ Interpreting
 
    .. code-block::
 
-      chemprop interpret --data_path data/tox21.csv --checkpoint_dir tox21_checkpoints/fold_0/ --property_id 1
+      chemporp interpret --data_path data/tox21.csv --checkpoint_dir tox21_checkpoints/fold_0/ --property_id 1
 
    The output will be like the following:
 

@@ -18,14 +18,14 @@ from rich.table import Column, Table
 import torch
 import torch.nn as nn
 
-from chemprop.cli.common import (
+from chemporp.cli.common import (
     add_common_args,
     find_models,
     process_common_args,
     validate_common_args,
 )
-from chemprop.cli.conf import CHEMPROP_TRAIN_DIR, NOW
-from chemprop.cli.utils import (
+from chemporp.cli.conf import CHEMPROP_TRAIN_DIR, NOW
+from chemporp.cli.utils import (
     LookupAction,
     Subcommand,
     build_data_from_files,
@@ -33,8 +33,8 @@ from chemprop.cli.utils import (
     make_dataset,
     parse_indices,
 )
-from chemprop.cli.utils.args import uppercase
-from chemprop.data import (
+from chemporp.cli.utils.args import uppercase
+from chemporp.data import (
     MoleculeDataset,
     MolGraphDataset,
     MulticomponentDataset,
@@ -44,17 +44,17 @@ from chemprop.data import (
     make_split_indices,
     split_data_by_indices,
 )
-from chemprop.data.datasets import _MolGraphDatasetMixin
-from chemprop.models import MPNN, MulticomponentMPNN, save_model
-from chemprop.nn import AggregationRegistry, LossFunctionRegistry, MetricRegistry, PredictorRegistry
-from chemprop.nn.message_passing import (
+from chemporp.data.datasets import _MolGraphDatasetMixin
+from chemporp.models import MPNN, MulticomponentMPNN, save_model
+from chemporp.nn import AggregationRegistry, LossFunctionRegistry, MetricRegistry, PredictorRegistry
+from chemporp.nn.message_passing import (
     AtomMessagePassing,
     BondMessagePassing,
     MulticomponentMessagePassing,
 )
-from chemprop.nn.transforms import GraphTransform, ScaleTransform, UnscaleTransform
-from chemprop.nn.utils import Activation
-from chemprop.utils import Factory
+from chemporp.nn.transforms import GraphTransform, ScaleTransform, UnscaleTransform
+from chemporp.nn.utils import Activation
+from chemporp.utils import Factory
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ _CV_REMOVAL_ERROR = (
 
 class TrainSubcommand(Subcommand):
     COMMAND = "train"
-    HELP = "Train a chemprop model."
+    HELP = "Train a chemporp model."
     parser = None
 
     @classmethod
@@ -107,7 +107,7 @@ def add_train_args(parser: ArgumentParser) -> ArgumentParser:
         "--output-dir",
         "--save-dir",
         type=Path,
-        help="Directory where training outputs will be saved (defaults to ``CURRENT_DIRECTORY/chemprop_training/STEM_OF_INPUT/TIME_STAMP``)",
+        help="Directory where training outputs will be saved (defaults to ``CURRENT_DIRECTORY/chemporp_training/STEM_OF_INPUT/TIME_STAMP``)",
     )
     parser.add_argument(
         "--remove-checkpoints",
@@ -375,7 +375,7 @@ def add_train_args(parser: ArgumentParser) -> ArgumentParser:
         "--metric",
         nargs="+",
         action=LookupAction(MetricRegistry),
-        help="Specify the evaluation metrics. If unspecified, chemprop will use the following metrics for given dataset types: regression -> ``rmse``, classification -> ``roc``, multiclass -> ``ce`` ('cross entropy'), spectral -> ``sid``. If multiple metrics are provided, the 0-th one will be used for early stopping and checkpointing.",
+        help="Specify the evaluation metrics. If unspecified, chemporp will use the following metrics for given dataset types: regression -> ``rmse``, classification -> ``roc``, multiclass -> ``ce`` ('cross entropy'), spectral -> ``sid``. If multiple metrics are provided, the 0-th one will be used for early stopping and checkpointing.",
     )
     train_args.add_argument(
         "--tracking-metric",

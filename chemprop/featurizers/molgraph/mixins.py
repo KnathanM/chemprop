@@ -2,9 +2,9 @@ from dataclasses import dataclass, field
 
 from rdkit.Chem.rdchem import Atom, Bond
 
-from chemprop.featurizers.atom import MultiHotAtomFeaturizer
-from chemprop.featurizers.base import VectorFeaturizer
-from chemprop.featurizers.bond import MultiHotBondFeaturizer
+from chemporp.featurizers.atom import MultiHotAtomFeaturizer
+from chemporp.featurizers.base import VectorFeaturizer
+from chemporp.featurizers.bond import MultiHotBondFeaturizer
 
 
 @dataclass

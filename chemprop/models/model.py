@@ -8,11 +8,11 @@ from lightning import pytorch as pl
 import torch
 from torch import Tensor, nn, optim
 
-from chemprop.data import BatchMolGraph, MulticomponentTrainingBatch, TrainingBatch
-from chemprop.nn import Aggregation, ChempropMetric, MessagePassing, Predictor
-from chemprop.nn.transforms import ScaleTransform
-from chemprop.schedulers import build_NoamLike_LRSched
-from chemprop.utils.registry import Factory
+from chemporp.data import BatchMolGraph, MulticomponentTrainingBatch, TrainingBatch
+from chemporp.nn import Aggregation, ChempropMetric, MessagePassing, Predictor
+from chemporp.nn.transforms import ScaleTransform
+from chemporp.schedulers import build_NoamLike_LRSched
+from chemporp.utils.registry import Factory
 
 logger = logging.getLogger(__name__)
 

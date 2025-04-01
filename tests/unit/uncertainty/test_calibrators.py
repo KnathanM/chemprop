@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from chemprop.uncertainty.calibrator import (
+from chemporp.uncertainty.calibrator import (
     AdaptiveMulticlassConformalCalibrator,
     IsotonicCalibrator,
     IsotonicMulticlassCalibrator,

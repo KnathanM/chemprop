@@ -8,5 +8,5 @@ CLI Reference
     :local:
 
 .. argparse::
-    :ref: chemprop.cli.main.construct_parser
-    :prog: chemprop
+    :ref: chemporp.cli.main.construct_parser
+    :prog: chemporp

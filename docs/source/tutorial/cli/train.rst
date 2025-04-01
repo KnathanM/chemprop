@@ -7,7 +7,7 @@ To train a model, run:
 
 .. code-block::
    
-    chemprop train --data-path <input_path> --task-type <task> --output-dir <dir>
+    chemporp train --data-path <input_path> --task-type <task> --output-dir <dir>
 
 where ``<input_path>`` is the path to a CSV file containing a dataset, ``<task>`` is the type of modeling task, and ``<dir>`` is the directory where model checkpoints will be saved.
 
@@ -15,7 +15,7 @@ For example:
 
 .. code-block::
 
-    chemprop train --data-path tests/data/regression.csv \
+    chemporp train --data-path tests/data/regression.csv \
         --task-type regression \
         --output-dir solubility_checkpoints
 
@@ -65,7 +65,7 @@ Our code supports several methods of splitting data into train, validation, and 
 
 .. code-block::
 
-    chemprop train --splits-column split -i data.csv -t regression
+    chemporp train --splits-column split -i data.csv -t regression
 
 .. list-table:: data.csv
     :widths: 10 10 10
@@ -95,7 +95,7 @@ Our code supports several methods of splitting data into train, validation, and 
 
 .. code-block::
 
-    chemprop train --splits-file splits.json -i data.csv -t regression
+    chemporp train --splits-file splits.json -i data.csv -t regression
 
 .. code-block:: JSON
     :caption: splits.json
@@ -297,7 +297,7 @@ Extra Datapoint Descriptors
 
 Additional datapoint descriptors can be concatenated to the learned representation after aggregation. These extra descriptors could be molecule-level features. If you install from source, you can modify the code to load custom descriptors as follows:
 
-1. **Generate features:** If you want to generate molecule features in code, you can write a custom features generator function using the default featurizers in :code:`chemprop/featurizers/`. This also works for custom atom and bond features. 
+1. **Generate features:** If you want to generate molecule features in code, you can write a custom features generator function using the default featurizers in :code:`chemporp/featurizers/`. This also works for custom atom and bond features. 
 2. **Load features:** Additional descriptors can be provided using :code:`--descriptors-path /path/to/descriptors.npz` where the descriptors are saved as a numpy :code:`.npz` file. This file can be saved using :code:`np.savez("/path/to/descriptors.npz", X_d)`, where :code:`X_d` is a 2D array with a shape of number of datapoints by number of additional descriptors. Note that the descriptors must be in the same order as the SMILES strings in your data file. The extra descriptors are scaled by default. This can be disabled with the option :code:`--no-descriptor-scaling`.
 
 
