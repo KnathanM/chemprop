@@ -10,7 +10,7 @@ from sklearn.isotonic import IsotonicRegression
 import torch
 from torch import Tensor
 
-from chemprop.utils.registry import ClassRegistry
+from chemporp.utils.registry import ClassRegistry
 
 logger = logging.getLogger(__name__)
 

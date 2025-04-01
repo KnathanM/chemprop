@@ -2,8 +2,8 @@ from os import PathLike
 
 import torch
 
-from chemprop.models.model import MPNN
-from chemprop.models.multi import MulticomponentMPNN
+from chemporp.models.model import MPNN
+from chemporp.models.multi import MulticomponentMPNN
 
 
 def save_model(path: PathLike, model: MPNN, output_columns: list[str] = None) -> None:

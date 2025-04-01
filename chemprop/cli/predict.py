@@ -9,18 +9,18 @@ import numpy as np
 import pandas as pd
 import torch
 
-from chemprop import data
-from chemprop.cli.common import (
+from chemporp import data
+from chemporp.cli.common import (
     add_common_args,
     find_models,
     process_common_args,
     validate_common_args,
 )
-from chemprop.cli.utils import LookupAction, Subcommand, build_data_from_files, make_dataset
-from chemprop.models.utils import load_model, load_output_columns
-from chemprop.nn.metrics import LossFunctionRegistry
-from chemprop.nn.predictors import EvidentialFFN, MulticlassClassificationFFN, MveFFN
-from chemprop.uncertainty import (
+from chemporp.cli.utils import LookupAction, Subcommand, build_data_from_files, make_dataset
+from chemporp.models.utils import load_model, load_output_columns
+from chemporp.nn.metrics import LossFunctionRegistry
+from chemporp.nn.predictors import EvidentialFFN, MulticlassClassificationFFN, MveFFN
+from chemporp.uncertainty import (
     MVEWeightingCalibrator,
     NoUncertaintyEstimator,
     RegressionCalibrator,
@@ -29,14 +29,14 @@ from chemprop.uncertainty import (
     UncertaintyEstimatorRegistry,
     UncertaintyEvaluatorRegistry,
 )
-from chemprop.utils import Factory
+from chemporp.utils import Factory
 
 logger = logging.getLogger(__name__)
 
 
 class PredictSubcommand(Subcommand):
     COMMAND = "predict"
-    HELP = "use a pretrained chemprop model for prediction"
+    HELP = "use a pretrained chemporp model for prediction"
 
     @classmethod
     def add_args(cls, parser: ArgumentParser) -> ArgumentParser:
@@ -64,7 +64,7 @@ def add_predict_args(parser: ArgumentParser) -> ArgumentParser:
         "--output",
         "--preds-path",
         type=Path,
-        help="Specify path to which predictions will be saved. If the file extension is .pkl, it will be saved as a pickle file. Otherwise, chemprop will save predictions as a CSV. If multiple models are used to make predictions, the average predictions will be saved in the file, and another file ending in '_individual' with the same file extension will save the predictions for each individual model, with the column names being the target names appended with the model index (e.g., '_model_<index>').",
+        help="Specify path to which predictions will be saved. If the file extension is .pkl, it will be saved as a pickle file. Otherwise, chemporp will save predictions as a CSV. If multiple models are used to make predictions, the average predictions will be saved in the file, and another file ending in '_individual' with the same file extension will save the predictions for each individual model, with the column names being the target names appended with the model index (e.g., '_model_<index>').",
     )
     parser.add_argument(
         "--drop-extra-columns",

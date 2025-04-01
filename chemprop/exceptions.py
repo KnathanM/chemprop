@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from chemprop.utils import pretty_shape
+from chemporp.utils import pretty_shape
 
 
 class InvalidShapeError(ValueError):

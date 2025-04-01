@@ -6,8 +6,8 @@ import torch
 from torch import Tensor
 from torch.utils.data import DataLoader
 
-from chemprop.models.model import MPNN
-from chemprop.utils.registry import ClassRegistry
+from chemporp.models.model import MPNN
+from chemporp.utils.registry import ClassRegistry
 
 
 class UncertaintyEstimator(ABC):

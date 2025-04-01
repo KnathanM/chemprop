@@ -7,19 +7,19 @@ import numpy as np
 import pandas as pd
 import torch
 
-from chemprop import data
-from chemprop.cli.common import add_common_args, process_common_args, validate_common_args
-from chemprop.cli.predict import find_models
-from chemprop.cli.utils import Subcommand, build_data_from_files, make_dataset
-from chemprop.models import load_model
-from chemprop.nn.metrics import LossFunctionRegistry
+from chemporp import data
+from chemporp.cli.common import add_common_args, process_common_args, validate_common_args
+from chemporp.cli.predict import find_models
+from chemporp.cli.utils import Subcommand, build_data_from_files, make_dataset
+from chemporp.models import load_model
+from chemporp.nn.metrics import LossFunctionRegistry
 
 logger = logging.getLogger(__name__)
 
 
 class FingerprintSubcommand(Subcommand):
     COMMAND = "fingerprint"
-    HELP = "Use a pretrained chemprop model to calculate learned representations."
+    HELP = "Use a pretrained chemporp model to calculate learned representations."
 
     @classmethod
     def add_args(cls, parser: ArgumentParser) -> ArgumentParser:
@@ -44,7 +44,7 @@ class FingerprintSubcommand(Subcommand):
             required=True,
             type=Path,
             nargs="+",
-            help="Specify location of checkpoint(s) or model file(s) to use for prediction. It can be a path to either a single pretrained model checkpoint (.ckpt) or single pretrained model file (.pt), a directory that contains these files, or a list of path(s) and directory(s). If a directory, chemprop will recursively search and predict on all found (.pt) models.",
+            help="Specify location of checkpoint(s) or model file(s) to use for prediction. It can be a path to either a single pretrained model checkpoint (.ckpt) or single pretrained model file (.pt), a directory that contains these files, or a list of path(s) and directory(s). If a directory, chemporp will recursively search and predict on all found (.pt) models.",
         )
         parser.add_argument(
             "--ffn-block-index",

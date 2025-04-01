@@ -7,11 +7,11 @@ import numpy as np
 from rdkit import Chem
 from rdkit.Chem.rdchem import Bond, Mol
 
-from chemprop.data.molgraph import MolGraph
-from chemprop.featurizers.base import GraphFeaturizer
-from chemprop.featurizers.molgraph.mixins import _MolGraphFeaturizerMixin
-from chemprop.types import Rxn
-from chemprop.utils.utils import EnumMapping
+from chemporp.data.molgraph import MolGraph
+from chemporp.featurizers.base import GraphFeaturizer
+from chemporp.featurizers.molgraph.mixins import _MolGraphFeaturizerMixin
+from chemporp.types import Rxn
+from chemporp.utils.utils import EnumMapping
 
 logger = logging.getLogger(__name__)
 

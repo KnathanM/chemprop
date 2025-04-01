@@ -2,8 +2,8 @@ import warnings
 
 import pytest
 
-from chemprop import models, nn
-from chemprop.models import multi
+from chemporp import models, nn
+from chemporp.models import multi
 
 warnings.filterwarnings("ignore", module=r"lightning.*", append=True)
 

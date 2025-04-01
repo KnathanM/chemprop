@@ -27,8 +27,8 @@ class Unpickler(pickle.Unpickler):
     }
 
     def find_class(self, module, name):
-        if module == "chemprop.nn.loss":
-            module = "chemprop.nn.metrics"
+        if module == "chemporp.nn.loss":
+            module = "chemporp.nn.metrics"
         name = self.name_mappings.get(name, name)
         return super().find_class(module, name)
 

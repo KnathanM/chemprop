@@ -9,12 +9,12 @@ from rdkit.Chem import Mol
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import Dataset
 
-from chemprop.data.datapoints import MoleculeDatapoint, ReactionDatapoint
-from chemprop.data.molgraph import MolGraph
-from chemprop.featurizers.base import Featurizer
-from chemprop.featurizers.molgraph import CGRFeaturizer, SimpleMoleculeMolGraphFeaturizer
-from chemprop.featurizers.molgraph.cache import MolGraphCache, MolGraphCacheOnTheFly
-from chemprop.types import Rxn
+from chemporp.data.datapoints import MoleculeDatapoint, ReactionDatapoint
+from chemporp.data.molgraph import MolGraph
+from chemporp.featurizers.base import Featurizer
+from chemporp.featurizers.molgraph import CGRFeaturizer, SimpleMoleculeMolGraphFeaturizer
+from chemporp.featurizers.molgraph.cache import MolGraphCache, MolGraphCacheOnTheFly
+from chemporp.types import Rxn
 
 
 class Datum(NamedTuple):

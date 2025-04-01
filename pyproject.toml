@@ -3,11 +3,11 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "chemprop"
+name = "chemporp"
 description = "Molecular Property Prediction with Message Passing Neural Networks"
 version = "2.1.2"
 authors = [
-    {name = "The Chemprop Development Team (see LICENSE.txt)", email="chemprop@mit.edu"}
+    {name = "The Chemprop Development Team (see LICENSE.txt)", email="chemporp@mit.edu"}
 ]
 readme = "README.md"
 license = {text = "MIT"}
@@ -48,12 +48,12 @@ test = ["pytest >= 6.2", "pytest-cov"]
 notebooks = ["ipykernel", "matplotlib"]
 
 [project.urls]
-documentation = "https://chemprop.readthedocs.io/en/latest/"
-source = "https://github.com/chemprop/chemprop"
-PyPi = "https://pypi.org/project/chemprop/"
+documentation = "https://chemporp.readthedocs.io/en/latest/"
+source = "https://github.com/chemporp/chemporp"
+PyPi = "https://pypi.org/project/chemporp/"
 
 [project.scripts]
-chemprop = "chemprop.cli.main:main"
+chemporp = "chemporp.cli.main:main"
 
 [tool.black]
 line-length = 100
@@ -69,7 +69,7 @@ max_line_length = 100
 
 
 [tool.pytest.ini_options]
-addopts = "--cov chemprop"
+addopts = "--cov chemporp"
 
 [tool.isort]
 profile = "black"

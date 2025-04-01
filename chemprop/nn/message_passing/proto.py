@@ -2,8 +2,8 @@ from abc import abstractmethod
 
 from torch import Tensor, nn
 
-from chemprop.data import BatchMolGraph
-from chemprop.nn.hparams import HasHParams
+from chemporp.data import BatchMolGraph
+from chemporp.nn.hparams import HasHParams
 
 
 class MessagePassing(nn.Module, HasHParams):
@@ -20,7 +20,7 @@ class MessagePassing(nn.Module, HasHParams):
         Parameters
         ----------
         bmg: BatchMolGraph
-            the batch of :class:`~chemprop.featurizers.molgraph.MolGraph`\s to encode
+            the batch of :class:`~chemporp.featurizers.molgraph.MolGraph`\s to encode
         V_d : Tensor | None, default=None
             an optional tensor of shape `V x d_vd` containing additional descriptors for each atom
             in the batch. These will be concatenated to the learned atomic descriptors and

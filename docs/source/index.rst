@@ -6,7 +6,7 @@
 Welcome to Chemprop's documentation!
 ====================================
 
-This website contains documentation for Chemprop, a PyTorch-based framework for training and evaluating message-passing neural networks (MPNNs) for molecular property prediction. The package was originally developed for :footcite:t:`chemprop_theory` and further described in :footcite:t:`chemprop_software`.
+This website contains documentation for Chemprop, a PyTorch-based framework for training and evaluating message-passing neural networks (MPNNs) for molecular property prediction. The package was originally developed for :footcite:t:`chemporp_theory` and further described in :footcite:t:`chemporp_software`.
 
 To get started with Chemprop, check out the :ref:`quickstart` page, and for more detailed information, see the :ref:`installation`, :ref:`tutorial`, and :ref:`notebooks` pages.
 

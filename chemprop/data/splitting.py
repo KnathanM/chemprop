@@ -8,8 +8,8 @@ from astartes.molecules import train_test_split_molecules, train_val_test_split_
 import numpy as np
 from rdkit import Chem
 
-from chemprop.data.datapoints import MoleculeDatapoint, ReactionDatapoint
-from chemprop.utils.utils import EnumMapping
+from chemporp.data.datapoints import MoleculeDatapoint, ReactionDatapoint
+from chemporp.utils.utils import EnumMapping
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ def make_split_indices(
     mols : Sequence[Chem.Mol]
         Sequence of RDKit molecules to use for structure based splitting
     split : SplitType | str, optional
-        Split type, one of ~chemprop.data.utils.SplitType, by default "random"
+        Split type, one of ~chemporp.data.utils.SplitType, by default "random"
     sizes : tuple[float, float, float], optional
         3-tuple with the proportions of data in the train, validation, and test sets, by default
         (0.8, 0.1, 0.1). Set the middle value to 0 for a two way split.

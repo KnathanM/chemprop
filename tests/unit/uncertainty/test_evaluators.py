@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from chemprop.uncertainty.evaluator import (
+from chemporp.uncertainty.evaluator import (
     CalibrationAreaEvaluator,
     ExpectedNormalizedErrorEvaluator,
     MulticlassConformalEvaluator,

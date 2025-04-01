@@ -13,13 +13,13 @@ We include an automated hyperparameter optimization procedure through the Ray Tu
 
 .. code-block::
 
-    chemprop hpopt --data-path <data_path> --task-type <task> --search-parameter-keywords <keywords> --hpopt-save-dir <save_dir>
+    chemporp hpopt --data-path <data_path> --task-type <task> --search-parameter-keywords <keywords> --hpopt-save-dir <save_dir>
 
 For example:
 
 .. code-block::
 
-    chemprop hpopt --data-path tests/data/regression.csv \
+    chemporp hpopt --data-path tests/data/regression.csv \
         --task-type regression \
         --search-parameter-keywords depth ffn_num_layers message_hidden_dim \
         --hpopt-save-dir results 
@@ -65,7 +65,7 @@ By default, Chemprop will split the data into train / validation / test data spl
 .. note::
     This default splitting behavior is different from Chemprop v1, wherein the hyperparameter optimization was performed on the entirety of the data provided to it.
 
-If ``--num-replicates`` is greater than one, Chemprop will only use the first split to perform hyperparameter optimization. If you need to optimize hyperparameters separately for several different cross validation splits, you should e.g. set up a bash script to run :code:`chemprop hpopt` separately on each split.
+If ``--num-replicates`` is greater than one, Chemprop will only use the first split to perform hyperparameter optimization. If you need to optimize hyperparameters separately for several different cross validation splits, you should e.g. set up a bash script to run :code:`chemporp hpopt` separately on each split.
 
 
 Applying Optimal Hyperparameters
@@ -75,5 +75,5 @@ Once hyperparameter optimization is complete, the optimal hyperparameters can be
 
 .. code-block::
 
-    chemprop train --data-path tests/data/regression.csv \
+    chemporp train --data-path tests/data/regression.csv \
         --config-path results/best_config.toml

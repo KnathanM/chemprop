@@ -4,12 +4,12 @@ from lightning.pytorch import __version__
 from lightning.pytorch.utilities.parsing import AttributeDict
 import torch
 
-from chemprop.nn.agg import AggregationRegistry
-from chemprop.nn.message_passing import AtomMessagePassing, BondMessagePassing
-from chemprop.nn.metrics import LossFunctionRegistry, MetricRegistry
-from chemprop.nn.predictors import PredictorRegistry
-from chemprop.nn.transforms import UnscaleTransform
-from chemprop.utils import Factory
+from chemporp.nn.agg import AggregationRegistry
+from chemporp.nn.message_passing import AtomMessagePassing, BondMessagePassing
+from chemporp.nn.metrics import LossFunctionRegistry, MetricRegistry
+from chemporp.nn.predictors import PredictorRegistry
+from chemporp.nn.transforms import UnscaleTransform
+from chemporp.utils import Factory
 
 
 def convert_state_dict_v1_to_v2(model_v1_dict: dict) -> dict:

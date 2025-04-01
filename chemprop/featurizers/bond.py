@@ -3,7 +3,7 @@ from typing import Sequence
 import numpy as np
 from rdkit.Chem.rdchem import Bond, BondType
 
-from chemprop.featurizers.base import VectorFeaturizer
+from chemporp.featurizers.base import VectorFeaturizer
 
 
 class MultiHotBondFeaturizer(VectorFeaturizer[Bond]):

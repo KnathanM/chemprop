@@ -2,9 +2,9 @@ import numpy as np
 import pytest
 from rdkit import Chem
 
-from chemprop.data.molgraph import MolGraph
-from chemprop.featurizers.atom import MultiHotAtomFeaturizer
-from chemprop.featurizers.molgraph import SimpleMoleculeMolGraphFeaturizer
+from chemporp.data.molgraph import MolGraph
+from chemporp.featurizers.atom import MultiHotAtomFeaturizer
+from chemporp.featurizers.molgraph import SimpleMoleculeMolGraphFeaturizer
 
 
 @pytest.fixture(params=[0, 10, 100])

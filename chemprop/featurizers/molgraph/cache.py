@@ -4,14 +4,14 @@ from typing import Generic, Iterable
 
 import numpy as np
 
-from chemprop.data.molgraph import MolGraph
-from chemprop.featurizers.base import Featurizer, S
+from chemporp.data.molgraph import MolGraph
+from chemporp.featurizers.base import Featurizer, S
 
 
 class MolGraphCacheFacade(Sequence[MolGraph], Generic[S]):
     """
     A :class:`MolGraphCacheFacade` provided an interface for caching
-    :class:`~chemprop.data.molgraph.MolGraph`\s.
+    :class:`~chemporp.data.molgraph.MolGraph`\s.
 
     .. note::
         This class only provides a facade for a cached dataset, but it *does not guarantee*
@@ -28,7 +28,7 @@ class MolGraphCacheFacade(Sequence[MolGraph], Generic[S]):
         The edge features for each input.
     featurizer : Featurizer[S, MolGraph]
         The featurizer with which to generate the
-        :class:`~chemprop.data.molgraph.MolGraph`\s.
+        :class:`~chemporp.data.molgraph.MolGraph`\s.
     """
 
     @abstractmethod
@@ -45,7 +45,7 @@ class MolGraphCacheFacade(Sequence[MolGraph], Generic[S]):
 class MolGraphCache(MolGraphCacheFacade):
     """
     A :class:`MolGraphCache` precomputes the corresponding
-    :class:`~chemprop.data.molgraph.MolGraph`\s and caches them in memory.
+    :class:`~chemporp.data.molgraph.MolGraph`\s and caches them in memory.
     """
 
     def __init__(
@@ -67,7 +67,7 @@ class MolGraphCache(MolGraphCacheFacade):
 class MolGraphCacheOnTheFly(MolGraphCacheFacade):
     """
     A :class:`MolGraphCacheOnTheFly` computes the corresponding
-    :class:`~chemprop.data.molgraph.MolGraph`\s as they are requested.
+    :class:`~chemporp.data.molgraph.MolGraph`\s as they are requested.
     """
 
     def __init__(

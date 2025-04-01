@@ -3,9 +3,9 @@ import pytest
 import torch
 from torch.utils.data import DataLoader
 
-from chemprop import nn
-from chemprop.data import MoleculeDatapoint, MoleculeDataset, collate_batch
-from chemprop.models import MPNN
+from chemporp import nn
+from chemporp.data import MoleculeDatapoint, MoleculeDataset, collate_batch
+from chemporp.models import MPNN
 
 
 @pytest.fixture

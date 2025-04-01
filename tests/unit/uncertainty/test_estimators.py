@@ -3,9 +3,9 @@ import pytest
 import torch
 from torch.utils.data import DataLoader
 
-from chemprop.data import MoleculeDatapoint, MoleculeDataset, collate_batch
-from chemprop.models import MPNN
-from chemprop.uncertainty.estimator import (
+from chemporp.data import MoleculeDatapoint, MoleculeDataset, collate_batch
+from chemporp.models import MPNN
+from chemporp.uncertainty.estimator import (
     ClassificationDirichletEstimator,
     DropoutEstimator,
     EnsembleEstimator,

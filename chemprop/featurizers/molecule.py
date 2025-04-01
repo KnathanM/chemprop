@@ -6,8 +6,8 @@ from rdkit import Chem
 from rdkit.Chem import Descriptors, Mol
 from rdkit.Chem.rdFingerprintGenerator import GetMorganGenerator
 
-from chemprop.featurizers.base import VectorFeaturizer
-from chemprop.utils import ClassRegistry
+from chemporp.featurizers.base import VectorFeaturizer
+from chemporp.utils import ClassRegistry
 
 logger = logging.getLogger(__name__)
 

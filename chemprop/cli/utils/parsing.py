@@ -5,16 +5,16 @@ from typing import Literal, Mapping, Sequence
 import numpy as np
 import pandas as pd
 
-from chemprop.data.datapoints import MoleculeDatapoint, ReactionDatapoint
-from chemprop.data.datasets import MoleculeDataset, ReactionDataset
-from chemprop.featurizers.atom import get_multi_hot_atom_featurizer
-from chemprop.featurizers.bond import MultiHotBondFeaturizer, RIGRBondFeaturizer
-from chemprop.featurizers.molecule import MoleculeFeaturizerRegistry
-from chemprop.featurizers.molgraph import (
+from chemporp.data.datapoints import MoleculeDatapoint, ReactionDatapoint
+from chemporp.data.datasets import MoleculeDataset, ReactionDataset
+from chemporp.featurizers.atom import get_multi_hot_atom_featurizer
+from chemporp.featurizers.bond import MultiHotBondFeaturizer, RIGRBondFeaturizer
+from chemporp.featurizers.molecule import MoleculeFeaturizerRegistry
+from chemporp.featurizers.molgraph import (
     CondensedGraphOfReactionFeaturizer,
     SimpleMoleculeMolGraphFeaturizer,
 )
-from chemprop.utils import make_mol
+from chemporp.utils import make_mol
 
 logger = logging.getLogger(__name__)
 

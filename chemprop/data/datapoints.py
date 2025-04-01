@@ -5,8 +5,8 @@ from dataclasses import dataclass
 import numpy as np
 from rdkit.Chem import AllChem as Chem
 
-from chemprop.featurizers import Featurizer
-from chemprop.utils import make_mol
+from chemporp.featurizers import Featurizer
+from chemporp.utils import make_mol
 
 MoleculeFeaturizer = Featurizer[Chem.Mol, np.ndarray]
 

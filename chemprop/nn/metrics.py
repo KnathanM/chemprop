@@ -8,7 +8,7 @@ import torchmetrics
 from torchmetrics.utilities.compute import auc
 from torchmetrics.utilities.data import dim_zero_cat
 
-from chemprop.utils.registry import ClassRegistry
+from chemporp.utils.registry import ClassRegistry
 
 __all__ = [
     "ChempropMetric",

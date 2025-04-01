@@ -3,7 +3,7 @@ from sklearn.preprocessing import StandardScaler
 import torch
 from torch import Tensor, nn
 
-from chemprop.data.collate import BatchMolGraph
+from chemporp.data.collate import BatchMolGraph
 
 
 class _ScaleTransformMixin(nn.Module):

@@ -1,7 +1,7 @@
 import pytest
 
-from chemprop.cli.common import find_models
-from chemprop.cli.utils.parsing import get_column_names, parse_indices
+from chemporp.cli.common import find_models
+from chemporp.cli.utils.parsing import get_column_names, parse_indices
 
 
 def test_parse_indices():
