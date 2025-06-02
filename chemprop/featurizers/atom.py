@@ -11,12 +11,7 @@ from chemprop.utils.utils import EnumMapping
 class MultiHotAtomFeaturizer(VectorFeaturizer[Atom]):
     """A :class:`MultiHotAtomFeaturizer` uses a multi-hot encoding to featurize atoms.
 
-    .. seealso::
-        The class provides three default parameterization schemes:
-
-        * :meth:`MultiHotAtomFeaturizer.v1`
-        * :meth:`MultiHotAtomFeaturizer.v2`
-        * :meth:`MultiHotAtomFeaturizer.organic`
+    .. urizer.organic`
 
     The generated atom features are ordered as follows:
     * atomic number
