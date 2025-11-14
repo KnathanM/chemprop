@@ -500,6 +500,12 @@ def add_train_args(parser: ArgumentParser) -> ArgumentParser:
         help="Number of epochs to wait for improvement before early stopping",
     )
     train_args.add_argument(
+        "--min-delta",
+        type=float,
+        default=0.0,
+        help="Minimum change in the monitored quantity to qualify as an improvement",
+    )
+    train_args.add_argument(
         "--grad-clip",
         type=float,
         help="Passed directly to the lightning trainer which controls grad clipping (see the ``Trainer()`` docstring for details)",
@@ -1710,7 +1716,9 @@ def train_model(
 
         if args.epochs != -1:
             patience = args.patience if args.patience is not None else args.epochs
-            early_stopping = EarlyStopping(tracking_metric, patience=patience, mode=monitor_mode)
+            early_stopping = EarlyStopping(
+                tracking_metric, patience=patience, mode=monitor_mode, min_delta=args.min_delta
+            )
             callbacks = [checkpointing, early_stopping]
         else:
             callbacks = [checkpointing]
