@@ -84,7 +84,7 @@ def add_predict_args(parser: ArgumentParser) -> ArgumentParser:
     parser.add_argument(
         "--drop-extra-columns",
         action="store_true",
-        help="Whether to drop all columns from the test data file besides the SMILES columns and the new prediction columns",
+        help="Not implemented in v2 and ignored. Remove unwanted columns after prediction instead.",
     )
     parser.add_argument(
         "--model-paths",
@@ -217,6 +217,11 @@ def process_predict_args(args: Namespace) -> Namespace:
     if args.output.suffix not in [".csv", ".pkl"]:
         raise ArgumentError(
             argument=None, message=f"Output must be a CSV or Pickle file. Got {args.output}"
+        )
+    if args.drop_extra_columns:
+        logger.warning(
+            "`--drop-extra-columns` is not implemented in v2 and will be ignored. Remove unwanted "
+            "columns after prediction instead."
         )
     return args
 
