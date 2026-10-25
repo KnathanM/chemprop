@@ -9,9 +9,14 @@ import warnings
 from lightning import pytorch as pl
 import torch
 
+import chemprop
 from chemprop.nn.hparams import from_hparams, get_native_chemprop_classes, serialize_hparams
 from chemprop.nn.transforms import GraphTransform, _ScaleTransformMixin
 from chemprop.utils.registry import Factory
+
+
+CHEMPROP_VERSION_KEY = "chemprop_version"
+FileLike = str | PathLike | IO[bytes]
 
 WEIGHTS_ONLY_DEFAULT_WARNING = (
     "`weights_only` was not specified, so it defaults to `False`, which allows arbitrary objects "
@@ -35,13 +40,13 @@ def resolve_weights_only(weights_only: bool | None) -> bool:
 
 
 def load_checkpoint(
-    path: PathLike | IO, map_location: Any = None, weights_only: bool | None = None
+    path: FileLike, map_location: Any = None, weights_only: bool | None = None
 ) -> dict:
     """Load a model file or checkpoint into a dictionary.
 
     Parameters
     ----------
-    path : PathLike | IO
+    path : str | PathLike | IO[bytes]
         the path to the model file or checkpoint
     map_location : Any, default=None
         passed to :func:`torch.load`
@@ -131,6 +136,7 @@ class CheckpointMixin:
     :class:`lightning.pytorch.LightningModule` in the base classes."""
 
     def on_save_checkpoint(self, checkpoint: dict) -> None:
+        checkpoint[CHEMPROP_VERSION_KEY] = chemprop.__version__
         if self.CHECKPOINT_HYPER_PARAMS_KEY in checkpoint:
             checkpoint[self.CHECKPOINT_HYPER_PARAMS_KEY] = serialize_hparams(
                 checkpoint[self.CHECKPOINT_HYPER_PARAMS_KEY]
@@ -138,7 +144,7 @@ class CheckpointMixin:
 
     @classmethod
     def _load(
-        cls, path: PathLike | IO, map_location: Any, weights_only: bool, **kwargs
+        cls, path: FileLike, map_location: Any, weights_only: bool, **kwargs
     ) -> tuple[dict, dict, dict]:
         """This function primarily builds the submodules that the parent module needs. It also
         provides some helpers to maintain backwards compatibility."""

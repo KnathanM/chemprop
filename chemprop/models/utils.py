@@ -2,10 +2,11 @@ from os import PathLike
 
 import torch
 
+import chemprop
 from chemprop.models.model import MPNN
 from chemprop.models.mol_atom_bond import MolAtomBondMPNN
 from chemprop.models.multi import MulticomponentMPNN
-from chemprop.models.serialization import load_checkpoint
+from chemprop.models.serialization import CHEMPROP_VERSION_KEY, load_checkpoint
 from chemprop.nn.hparams import serialize_hparams
 
 
@@ -21,6 +22,7 @@ def save_model(
             "hyper_parameters": serialize_hparams(model.hparams),
             "state_dict": model.state_dict(),
             "output_columns": output_columns,
+            CHEMPROP_VERSION_KEY: chemprop.__version__,
         },
         path,
     )
